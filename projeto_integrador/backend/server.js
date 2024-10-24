@@ -5,6 +5,37 @@ server.use(express.urlencoded({extended: true}));//Transforma a requisição(str
 
 server.listen(3001,() => {console.log('servidor rodando')});
 
+let resultadoTotalMaoDeObra = null;
+let resultadoTotalTransporte = null;
+let resultadoTotalMateriais = null;
+
+// Rota GET para retornar os dados da mão de obra
+server.get("/obter-total-mao-de-obra", (req, res) => {
+    if (resultadoTotalMaoDeObra) {
+        res.send(resultadoTotalMaoDeObra);
+    } else {
+        res.status(404).send({ error: "Dados de mão de obra ainda não calculados." });
+    }
+});
+
+// Rota GET para retornar os dados do transporte
+server.get("/obter-total-custo-transporte", (req, res) => {
+    if (resultadoTotalTransporte) {
+        res.send(resultadoTotalTransporte);
+    } else {
+        res.status(404).send({ error: "Dados de transporte ainda não calculados." });
+    }
+});
+
+// Rota GET para retornar os dados dos materiais
+server.get("/obter-total-custo-materiais", (req, res) => {
+    if (resultadoTotalMateriais) {
+        res.send(resultadoTotalMateriais);
+    } else {
+        res.status(404).send({ error: "Dados de materiais ainda não calculados." });
+    }
+});
+
 // Função auxiliar para calcular a diferença de horas entre dois horários (horaInicio e horaFim)
 function calcularHorasTurno(turno) {
     const [horaInicio, minutoInicio] = turno.inicio.split(":").map(Number);
