@@ -1,0 +1,56 @@
+
+
+.BoxImput {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: linear-gradient(#121212, #1411aa);
+}
+
+.FormLogin {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 7px;
+    padding: 40px;
+    box-shadow: 10px 10px 40px rgba(0,0,0,0.4); /*sombreado*/
+    gap: 15px; /*faz com o que tiver no container ter o mesmo espaco entre si */   
+}
+
+.FormLogin h1{ 
+    padding: 0;
+    margin: 0;        
+    font-weight: 500; /*grossura do texto*/
+    font-size: 2.3em;
+    font-family: 'Lobster', cursive; /*estilo do texto(caso mude procura na ointernet modelos de texto)*/
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center; 
+}
+
+.FormLogin input{
+    padding: 15px;
+    font-size: 14px;
+    margin-top: 10px;
+    transition: all linear 200ms;/* faz uma transicao ao ter alteracao no atributo(input) all(todos),linear(de forma constante) e o tempo*/
+    width: 50vb;
+}
+
+.FormLogin label{
+    font-size: 15px;
+    font-weight: 600;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif ;
+}
+
+#bnt {
+    background-color: #3498db;
+    padding: 10px 20px;
+    /* transition: background-color 0.3s,transform 0.3s; */
+}
+
+#bnt:hover {
+    transform: scale(1.05); /*Aumenta o tamanho em 5%*/
+    background-color: #0dca4c; /*Muda a cor de fundo*/
+} 
