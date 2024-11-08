@@ -24,7 +24,7 @@
     margin: 0;        
     font-weight: 500; /*grossura do texto*/
     font-size: 2.3em;
-    font-family: 'Lobster', cursive; /*estilo do texto(caso mude procura na ointernet modelos de texto)*/
+    font-family: 'Roboto', sans-serif; /*estilo do texto(caso mude procura na ointernet modelos de texto)*/
     margin-bottom: 20px;
     display: flex;
     justify-content: center; 
