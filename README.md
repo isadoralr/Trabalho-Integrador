@@ -2,8 +2,8 @@
 ## Alunos envolvidos: Isadora Laís Ruschel, Nycollas Wildney e Wilsony Louis
 Matrículas: 2311100031, 2311100005, 2311100003.
 ## Organização de diretórios:
-# Documentos sobre o projeto e entregas solicitadas: Pasta "documentos";
-# Sistema em si: sistema_projeto_integrador.
+### Documentos sobre o projeto e entregas solicitadas: Pasta "documentos";
+### Sistema em si: sistema_projeto_integrador.
 ## Descrição do Projeto
 
 Este projeto visa desenvolver um sistema de gestão para um microempreendedor individual (MEI) especializado em instalação e manutenção elétrica. O sistema tem como objetivo facilitar a criação de orçamentos, agendamento de serviços e organização de dados, melhorando a eficiência das operações da empresa, que atende a clientes que precisam de serviços de instalação elétrica e manutenção em residências e estabelecimentos comerciais. Além dos serviços, a empresa também oferece produtos elétricos e materiais de construção.
