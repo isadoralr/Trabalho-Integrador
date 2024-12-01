@@ -1,10 +1,12 @@
-// import React from "react";
-import Login from './Login';
-import "./Login.css"
+import React from "react";
+import CadastroCliente from "./CadastroCliente";
 
 function App() {
   return (
-    <Login/>
+    <div> 
+    <CadastroCliente/>
+    </div>
+
   );
 }
 
