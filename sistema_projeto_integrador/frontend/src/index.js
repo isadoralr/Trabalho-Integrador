@@ -1,62 +1,65 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+// import App from './App';
+import { createBrowserRouter , RouterProvider } from 'react-router-dom';
 
-import Agenda from "./Componentes/componentesJS/Agenda";
-import CadastroCliente from "./Componentes/componentesJS/CadastroCliente"; 
-import CadastradoOrcamento from "./Componentes/componentesJS/CadastroOrcamento"; 
-import HistoricoServico from "./Componentes/componentesJS/HistoricoServico"; 
-import MateriaisFerramentas from "./Componentes/componentesJS/MateriaisFerramentas";
-import Painel from "./Componentes/componentesJS/Painel";
-import Relatorios from "./Componentes/componentesJS/Relatorio";
+
+
+import Agenda from "./Componenetes/componentesJS/Agenda";
+import CadastroCliente from "./Componenetes/componentesJS/CadastroCliente"; 
+import CadastradoOrcamento from "./Componenetes/componentesJS/CadastroOrcamento"; 
+import HistoricoServico from "./Componenetes/componentesJS/HistoricoServico"; 
+import MateriaisFerramentas from "./Componenetes/componentesJS/MeteriaisFerramentas";
+import Painel from "./Componenetes/componentesJS/Painel";
+import Relatorios from "./Componenetes/componentesJS/Relatorio";
 import Login from "./LoginLogout/Login";
 import "./LoginLogout/Login.css";
 import DashboardLayoutBasic from "./DashBoard/TelaInicial";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Login />,
+    path:"/",
+    element:<Login/>,
   },
   {
-    path: "/TelaInicial",
-    element: <DashboardLayoutBasic />,
+    path:"/TelaInicial",
+    element:<DashboardLayoutBasic/>,
     children: [
       {
-        path: "Painel",
-        element: <Painel />,
+        path:"/TelaInicial/Painel",
+        element:<Painel/>
       },
       {
-        path: "Agenda",
-        element: <Agenda />,
+        path:"/TelaInicial/Agenda",
+        element: <Agenda/>
       },
       {
-        path: "CadastroCliente",
-        element: <CadastroCliente />,
+        path:"/TelaInicial/CadastroCliente",
+        element:<CadastroCliente/>,
       },
       {
-        path: "HistoricoServico",
-        element: <HistoricoServico />,
+        path:"/TelaInicial/HistoricoServico",
+        element:<HistoricoServico/>,
       },
       {
-        path: "CadastradoOrcamento",
-        element: <CadastradoOrcamento />,
+        path:"/TelaInicial/cadastradoOrcamento",
+        element:<CadastradoOrcamento/>,
       },
       {
-        path: "MateriaisFerramentas",
-        element: <MateriaisFerramentas />,
+        path:"/TelaInicial/MateriaisFerramentas",
+        element:<MateriaisFerramentas/>,
       },
       {
-        path: "Relatorios",
-        element: <Relatorios />,
+        path:"/TelaInicial/Relatorios",
+        element:<Relatorios/>,
       },
     ],
-  },
+  }
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <RouterProvider router={router}/>
   </React.StrictMode>
 );
