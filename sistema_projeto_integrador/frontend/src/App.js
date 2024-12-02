@@ -1,12 +1,11 @@
 import React from "react";
-import CadastroCliente from "./CadastroCliente";
+import TelaInicial from "./components/TelaInicial";
 
 function App() {
   return (
     <div> 
-    <CadastroCliente/>
+    <TelaInicial/>
     </div>
-
   );
 }
 

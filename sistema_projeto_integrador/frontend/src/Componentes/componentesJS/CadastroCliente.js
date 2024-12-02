@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./CadastroCliente.css";
+import "../componentesCSS/CadastroCliente.css";
 import axios from "axios";
 
 function CadastroCliente() {

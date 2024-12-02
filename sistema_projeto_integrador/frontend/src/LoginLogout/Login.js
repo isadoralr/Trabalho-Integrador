@@ -58,7 +58,7 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={error.password} // Marca o campo como erro
-          helperText={error.password && "O campo Password é obrigatório"} // Exibe mensagem de erro
+          helperText={error.password && "O campo Senha é obrigatório"} // Exibe mensagem de erro
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
