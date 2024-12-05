@@ -1,33 +1,49 @@
-import React, { useState } from 'react';
-import { Box, TextField, Button, InputAdornment} from "@mui/material";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LockIcon from '@mui/icons-material/Lock';
+import React, { useState } from "react";
+import { Box, TextField, Button, InputAdornment } from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LockIcon from "@mui/icons-material/Lock";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+function Login({ setIsLoggedIn }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState({ email: false, password: false });
+  const [loginError, setLoginError] = useState(""); // Para mensagens de erro do servidor
+  const navigate = useNavigate();
 
   // Função para tratar o envio do formulário
-  const handleSubmit = (event) => {
-    event.preventDefault(); 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    //trim remove espaços vazios e assim verifica se a String ta vazia
-    const emailError = email.trim() === '';
-    const passwordError = password.trim() === '';
+    // Validação dos campos
+    const emailError = email.trim() === "";
+    const passwordError = password.trim() === "";
     setError({ email: emailError, password: passwordError });
+
     if (emailError || passwordError) {
       return;
     }
 
-    console.log('Email:', email);
-    console.log('Password:', password);
+    try {
+      // Envio dos dados para o servidor
+      const response = await axios.post("/login", { email, password });
+      const { token } = response.data;
 
-    // Aqui você pode enviar os dados para um servidor, por exemplo.
+      // Salva o token no localStorage e atualiza o estado de login
+      localStorage.setItem("token", token);
+      setIsLoggedIn(true);
+
+      // Redireciona para a página protegida
+      navigate("/TelaInicial");
+    } catch (err) {
+      console.error("Erro ao fazer login:", err);
+      setLoginError("Credenciais inválidas. Verifique seu email e senha.");
+    }
   };
 
   return (
-    <Box className="BoxImput">
+    <Box className="BoxInput">
       <form method="POST" className="FormLogin" onSubmit={handleSubmit}>
         <h1>Login</h1>
 
@@ -53,7 +69,7 @@ function Login() {
         {/* Campo de Senha */}
         <TextField
           type="password"
-          label="Password"
+          label="Senha"
           variant="outlined"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -68,6 +84,9 @@ function Login() {
           }}
           fullWidth
         />
+
+        {/* Mensagem de erro de login */}
+        {loginError && <p style={{ color: "red" }}>{loginError}</p>}
 
         {/* Botão de envio */}
         <Button type="submit" variant="contained" color="primary" id="bnt">

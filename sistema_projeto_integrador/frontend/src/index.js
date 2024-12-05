@@ -5,13 +5,13 @@ import { createBrowserRouter , RouterProvider } from 'react-router-dom';
 
 
 
-import Agenda from "./Componenetes/componentesJS/Agenda";
-import CadastroCliente from "./Componenetes/componentesJS/CadastroCliente"; 
-import CadastradoOrcamento from "./Componenetes/componentesJS/CadastroOrcamento"; 
-import HistoricoServico from "./Componenetes/componentesJS/HistoricoServico"; 
-import MateriaisFerramentas from "./Componenetes/componentesJS/MeteriaisFerramentas";
-import Painel from "./Componenetes/componentesJS/Painel";
-import Relatorios from "./Componenetes/componentesJS/Relatorio";
+import Agenda from "./Componentes/componentesJS/Agenda";
+import CadastroCliente from "./Componentes/componentesJS/CadastroCliente"; 
+import CadastradoOrcamento from "./Componentes/componentesJS/CadastroOrcamento"; 
+import HistoricoServico from "./Componentes/componentesJS/HistoricoServico"; 
+import MateriaisFerramentas from "./Componentes/componentesJS/MateriaisFerramentas";
+import Painel from "./Componentes/componentesJS/Painel";
+import Relatorios from "./Componentes/componentesJS/Relatorio";
 import Login from "./LoginLogout/Login";
 import "./LoginLogout/Login.css";
 import DashboardLayoutBasic from "./DashBoard/TelaInicial";
