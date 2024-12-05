@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import TelaInicial from "./components/TelaInicial";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import Cadastro from "./components/Cadastro";
 import Dashboard from "./components/Dashboard"; // Página protegida
 import axios from "axios";
 
+// Configuração global do Axios
 axios.defaults.baseURL = "http://localhost:3000/";
 axios.defaults.headers.common["Content-Type"] = "application/json;charset=utf-8";
 
@@ -13,7 +13,7 @@ function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        // Verifica se há um token salvo
+        // Verifica se há um token salvo e define o estado de login
         const token = localStorage.getItem("token");
         if (token) {
             setIsLoggedIn(true);
@@ -21,6 +21,7 @@ function App() {
     }, []);
 
     const handleLogout = () => {
+        // Remove o token do armazenamento local e desloga o usuário
         localStorage.removeItem("token");
         setIsLoggedIn(false);
     };
@@ -29,17 +30,20 @@ function App() {
         <Router>
             <Routes>
                 {/* Rotas públicas */}
-                <Route path="/Login" element={isLoggedIn ? <Navigate to="/TelaInicial" /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+                <Route
+                    path="/login"
+                    element={isLoggedIn ? <Navigate to="/TelaInicial" /> : <Login setIsLoggedIn={setIsLoggedIn} />}
+                />
                 <Route path="/cadastro" element={<Cadastro />} />
 
                 {/* Rotas protegidas */}
                 <Route
                     path="/TelaInicial"
-                    element={isLoggedIn ? <Dashboard handleLogout={handleLogout} /> : <Navigate to="/Login" />}
+                    element={isLoggedIn ? <Dashboard handleLogout={handleLogout} /> : <Navigate to="/login" />}
                 />
 
-                {/* Página inicial redireciona para login */}
-                <Route path="*" element={<Navigate to={isLoggedIn ? "/TelaInicial" : "/Login"} />} />
+                {/* Redireciona qualquer rota não definida */}
+                <Route path="*" element={<Navigate to={isLoggedIn ? "/TelaInicial" : "/login"} />} />
             </Routes>
         </Router>
     );
