@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from "react-router-dom";
 import Agenda from "./Componentes/componentesJS/Agenda";
 import CadastroCliente from "./Componentes/componentesJS/CadastroCliente";
-import CadastradoOrcamento from "./Componentes/componentesJS/CadastroOrcamento";
+import CadastroOrcamento from "./Componentes/componentesJS/CadastroOrcamento";
 import HistoricoServico from "./Componentes/componentesJS/HistoricoServico";
 import MateriaisFerramentas from "./Componentes/componentesJS/MateriaisFerramentas";
 import Painel from "./Componentes/componentesJS/Painel";
