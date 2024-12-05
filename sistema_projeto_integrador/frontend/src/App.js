@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
-import Cadastro from "./components/Cadastro";
 import Dashboard from "./components/Dashboard"; // Página protegida
 import axios from "axios";
 
@@ -34,8 +33,6 @@ function App() {
                     path="/login"
                     element={isLoggedIn ? <Navigate to="/TelaInicial" /> : <Login setIsLoggedIn={setIsLoggedIn} />}
                 />
-                <Route path="/cadastro" element={<Cadastro />} />
-
                 {/* Rotas protegidas */}
                 <Route
                     path="/TelaInicial"
