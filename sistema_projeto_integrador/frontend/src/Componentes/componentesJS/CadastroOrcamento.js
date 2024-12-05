@@ -1,9 +1,9 @@
 import React from  'react';
 
-const CadastradoOrcamento = () => {
+const CadastroOrcamento = () => {
     return (
         <h1>CLIENTES</h1>
     )
 }
 
-export default CadastradoOrcamento;
+export default CadastroOrcamento;

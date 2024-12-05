@@ -37,7 +37,7 @@ const router = createBrowserRouter([
           { path: "/TelaInicial/Agenda", element: <Agenda /> },
           { path: "/TelaInicial/CadastroCliente", element: <CadastroCliente /> },
           { path: "/TelaInicial/HistoricoServico", element: <HistoricoServico /> },
-          { path: "/TelaInicial/cadastradoOrcamento", element: <CadastradoOrcamento /> },
+          { path: "/TelaInicial/cadastroOrcamento", element: <CadastroOrcamento /> },
           { path: "/TelaInicial/MateriaisFerramentas", element: <MateriaisFerramentas /> },
           { path: "/TelaInicial/Relatorios", element: <Relatorios /> },
         ],

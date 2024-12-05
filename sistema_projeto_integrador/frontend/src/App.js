@@ -33,7 +33,6 @@ function App() {
                     path="/login"
                     element={isLoggedIn ? <Navigate to="/TelaInicial" /> : <Login setIsLoggedIn={setIsLoggedIn} />}
                 />
-
                 {/* Rotas protegidas */}
                 <Route
                     path="/TelaInicial"
