@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { TextField, Box, Button, Alert } from '@mui/material';
 // import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -8,14 +7,31 @@ import InputManager from '../Funcoes/MultiInput';
 import Grid from '@mui/material/Grid2'; // Usando Grid2
 import Typography from '@mui/material/Typography';
 
+import {
+  // Table,
+  Alert,
+  TextField,
+  Box,
+  // TableBody,
+  // TableCell,
+  // TableContainer,
+  // TableHead,
+  // TableRow,
+  // IconButton,
+  Button,
+} from '@mui/material';
+
 
 const CurrencyInput = () => {
-  const [value, setValue] = useState('');
-  const [nomeorcamento, setNomercamento] = useState('');
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  /*forms para salvar os valores dos inputs */
+  const [value, setValue] = useState('');//valor da mao de obra / h
+  const [nomeorcamento, setNomercamento] = useState('');// para o nome do orcamento
+  const [startDate, setStartDate] = useState(null);//inicio da data
+  const [endDate, setEndDate] = useState(null);//fim da data
+  const [formData, setFormData] = useState([]);//para os turnos
+  
+  /* para pegar uma mansagem de erro*/
   const [errors, setErrors] = useState({});
-  const [formData, setFormData] = useState([]);
 
   const formatCurrency = (value) => {
     const numericValue = value.replace(/\D/g, '');
@@ -45,8 +61,8 @@ const CurrencyInput = () => {
       console.log({
         nomeorcamento,
         value,
-        startDate: startDate.format('YYYY-MM-DD'),
-        endDate: endDate.format('YYYY-MM-DD'),
+        startDate: startDate.format('DD-MM-YYYY'),
+        endDate: endDate.format('DD-MM-YYYY'),
         formData,
       });
     }
@@ -57,18 +73,16 @@ const CurrencyInput = () => {
   };
 
   return (
-    <Box
-    borderRadius="30px"
-    border="2px solid gray" // Define a borda
-      sx={{
-        '& .MuiTextField-root': { m: 1, width: '100%' },
-        maxWidth: '1000px',
-        margin: '0 auto',
-        // backgroundColor: 'blue',
-      }}
-      component="form"
-      onSubmit={handleSubmit}
-      // bgcolor="#e3f2fd"
+    <Box>
+    {/*box para conter o cadastro do orcamento */}
+    <Box borderRadius="30px" border="2px solid gray" // define a borda
+    sx={{
+      '& .MuiTextField-root': { m: 1, width: '100%' },
+      maxWidth: '1000px',
+      margin: '0 auto',
+    }}
+    component="form"
+    onSubmit={handleSubmit}
     >
       <Typography 
       sx={{
@@ -78,37 +92,33 @@ const CurrencyInput = () => {
       }}
       variant="h5" 
       component="h1"
-      >
-        Cadastro de Orçamento
-      </Typography>
+      > Cadastro de Orcamento </Typography>
    
-      <Grid
-      container spacing={2}>
+      <Grid container spacing={2}>
         <Grid xs={12} sm={6}
         sx={{width:'40%',marginLeft:'5%'}}
         >
-          <TextField
-            required
-            label="Nome do orçamento"
-            placeholder="Digite um nome"
-            value={nomeorcamento}
-            onChange={(e) => setNomercamento(e.target.value)}
-            error={!!errors.nomeorcamento}
-            helperText={errors.nomeorcamento}
-          />
+        <TextField
+          required
+          label="Nome do orçamento"
+          placeholder="Digite um nome"
+          value={nomeorcamento}
+          onChange={(e) => setNomercamento(e.target.value)}
+          error={!!errors.nomeorcamento}
+          helperText={errors.nomeorcamento}
+        />
         </Grid>
-        <Grid
-         xs={12} sm={6} sx={{width:'40%',marginRight:'5%'}}>
-          <TextField
-            required
-            label="Mão de Obra / h"
-            value={value}
-            onChange={handleChange}
-            placeholder="Digite um valor"
-            variant="outlined"
-            error={!!errors.value}
-            helperText={errors.value}
-          />
+        <Grid xs={12} sm={6} sx={{width:'40%',marginRight:'5%'}}>
+        <TextField
+          required
+          label="Mão de Obra / h"
+          value={value}
+          onChange={handleChange}
+          placeholder="Digite um valor"
+          variant="outlined"
+          error={!!errors.value}
+          helperText={errors.value}
+        />
         </Grid>
       </Grid>
 
@@ -119,6 +129,7 @@ const CurrencyInput = () => {
             <DatePicker
               required
               label="Data de Início"
+              format="DD-MM-YYYY"
               value={startDate}
               onChange={setStartDate}
               renderInput={(params) => (
@@ -136,6 +147,7 @@ const CurrencyInput = () => {
             <DatePicker
               required
               label="Data de Finalização"
+              format="DD-MM-YYYY"
               value={endDate}
               onChange={setEndDate}
               renderInput={(params) => (
@@ -151,27 +163,29 @@ const CurrencyInput = () => {
       </Grid>
 
       <Grid container spacing={2} sx={{ mt: 2 ,marginBottom:'10px'}}>
-        <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
-          <InputManager onChange={handleDynamicInputChange} />
-        </Grid>
+      <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
+        <InputManager onChange={handleDynamicInputChange} />
+      </Grid>
       <Grid xs={12} sm={6} sx={{marginRight:'5%'}}>
       {/* botao de enviar o cadastro */}
-        <Box
-        sx={{ mt: 2,marginLeft:'10%'}}
-        >
-        <Button type="submit" variant="outlined">
+        <Box sx={{ mt: 2,marginLeft:'10%'}}>
+        <Button type="submit" variant="contained" color="primary">
           Cadastrar
         </Button>
-      </Box>
+        </Box>
       </Grid>
-    </Grid>
+      </Grid>
 
-      {/* mostrar o erro que seria a falta de alguma enrada */}
+      {/* mostrar o erro que seria a falta de alguma entrada */}
       {Object.keys(errors).length > 0 && (
         <Alert severity="error" sx={{ mt: 2 }}>
-          Preencha todos os campos obrigatórios.
+        Preencha todos os campos obrigatórios.
         </Alert>
       )}
+    </Box>
+
+    {/* AQUI VAI FICAR A TABELA DE ORCAMENTOS*/}
+    <Box></Box>
     </Box>
   );
 };
