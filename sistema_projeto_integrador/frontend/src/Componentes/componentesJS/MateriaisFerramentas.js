@@ -35,10 +35,10 @@ const MateriaisFerramentas = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Materiais e Ferramentas
-      </Typography>
+    <Box sx={{ mt: 2, textAlign: 'center'}}>
+        <Typography variant="h5" component="h2" gutterBottom> 
+        Ferramentas
+        </Typography>
       <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table>
           <TableHead>
