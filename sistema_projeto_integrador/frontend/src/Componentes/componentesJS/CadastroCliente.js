@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { TextField, Box, Button, Alert, Grid, Typography } from "@mui/material";
+import { TextField, Box, Button, Alert, Typography } from "@mui/material";
 import axios from "axios";
+import Grid from '@mui/material/Grid2'; // Usando Grid2
+
 import "../componentesCSS/CadastroCliente.css"; // Arquivo CSS
 
 const CadastroCliente = () => {
@@ -67,30 +69,44 @@ const CadastroCliente = () => {
   };
 
   return (
-    <Box
-      className="cadastro-cliente-form"
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{ maxWidth: 600, margin: "auto", padding: "20px" }}
-    >
-      <Typography variant="h5" component="h1" className="cadastro-cliente-titulo">
-        Cadastro de Cliente
-      </Typography>
+    <Box>
+      <Box
+       borderRadius="30px" border="2px solid gray" // define a borda
+       sx={{
+         '& .MuiTextField-root': { m: 1, width: '100%' },
+         maxWidth: '1000px',
+         margin: '0 auto',
+       }}
+       component="form"
+       onSubmit={handleSubmit}
+       >
+      <Typography 
+      sx={{
+        textAlign:'center',
+        marginTop:'10px',
+        marginBottom: '10px',
+      }}
+      variant="h5" 
+      component="h1"
+      > Cadastro de Cliente
+      </Typography>  
+
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
           <TextField
-            name="nome"
-            label="Nome do Cliente"
-            value={formData.nome}
-            onChange={handleChange}
-            error={!!errors.nome}
-            helperText={errors.nome}
-            required
-            fullWidth
-          />
+          name="nome"
+          label="Nome do Cliente"
+          value={formData.nome}
+          onChange={handleChange}
+          error={!!errors.nome}
+          helperText={errors.nome}
+          required
+          fullWidth
+          >
+          </TextField>
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
+        <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
+        <TextField
             name="telefone"
             label="Telefone"
             type="tel"
@@ -102,23 +118,25 @@ const CadastroCliente = () => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={12}>
-          <TextField
-            name="email"
-            label="Email (Opcional)"
-            value={formData.email}
-            onChange={handleChange}
-            error={!!errors.email}
-            helperText={errors.email}
-            fullWidth
-          />
-        </Grid>
       </Grid>
-      <Box sx={{ mt: 2 }}>
+      
+      <Grid container spacing={1} sx={{ mt: 2 }} marginLeft="5%" marginRight="5%">
+      <TextField
+        name="email"
+        label="Email (Opcional)"
+        value={formData.email}
+        onChange={handleChange}
+        error={!!errors.email}
+        helperText={errors.email}
+        // fullWidth
+      />        
+      </Grid>
+      <Grid container spacing={1} sx={{ mt: 2 }} 
+      marginLeft="5%" marginRight="5%" marginBottom="20px">
         <Button type="submit" variant="contained" color="primary" fullWidth>
           Cadastrar
         </Button>
-      </Box>
+      </Grid>
       {successMessage && (
         <Alert severity="success" sx={{ mt: 2 }}>
           {successMessage}
@@ -129,6 +147,7 @@ const CadastroCliente = () => {
           {errorMessage}
         </Alert>
       )}
+      </Box>
     </Box>
   );
 };
