@@ -35,6 +35,7 @@ const InputManager = ({ onChange }) => {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%',marginBottom:'10px' }}>
       {/* Dropdown de seleção */}
       <TextField
+        required
         select
         label="Escolha um valor"
         value={selectedValue}

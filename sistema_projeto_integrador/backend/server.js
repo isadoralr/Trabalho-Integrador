@@ -101,23 +101,6 @@ passport.deserializeUser((user, done) => {
     done(null, user);
 });
 
-// Rotas
-app.post(
-    "/login",
-    passport.authenticate("local", { session: false }),
-    (req, res) => {
-        const token = jwt.sign({ email: req.user.email }, "your-secret-key", {
-            expiresIn: "1h",
-        });
-
-        res.json({ message: "Login realizado com sucesso", token: token });
-    }
-);
-
-app.post("/logout", (req, res) => {
-    res.json({ message: "Logout realizado com sucesso" });
-});
-
 // Inicia o servidor
 app.listen(3001, () => {
     console.log("Servidor rodando na porta 3001");
@@ -145,6 +128,18 @@ app.post("/logout", function (req, res, next) {
 		res.redirect("/");
 	});
 });
+
+app.post('/cadastro-cliente', async (req, res) => {
+    const { nome, telefone, email } = req.body;
+    try {
+      await db.none('INSERT INTO cliente (nome, tel, email) VALUES ($1, $2, $3)', [nome, telefone, email]);
+      res.status(201).send('Cliente cadastrado com sucesso.');
+    } catch (err) {
+      console.error('Erro ao cadastrar cliente:', err.message);
+      res.status(500).send(`Erro ao cadastrar cliente: ${err.message}`);
+    }
+  });
+  
 
 let resultadoTotalMaoDeObra = null;
 let resultadoTotalTransporte = null;

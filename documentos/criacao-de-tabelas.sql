@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS cliente (
     cid serial NOT NULL,
     nome varchar(30) NOT NULL,
-    tel varchar(14) NOT NULL,
+    tel varchar(15) NOT NULL,
     email varchar(255),
     CONSTRAINT pk_cliente PRIMARY KEY (cid),
     CONSTRAINT uc_cliente_tel UNIQUE (tel),

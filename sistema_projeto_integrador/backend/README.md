@@ -35,3 +35,10 @@ node scripts/insertUsers.js
 host    all             all             <seu ip v4>/32          md5
 Salva e reinicia o serviço do postgres e dá o comando de rodar o servidor de novo
 
+### Erros de inserção, relacionados a permissão do usuário:
+o usuário precisa ter permissão de update, insert e delete pra todas as tabelas e também permissões de atulização de serial key, comandos:
+GRANT INSERT, UPDATE, DELETE, SELECT ON ALL TABLES IN SCHEMA public TO nome_do_usuario;
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO nome_do_usuario;
+
+
+

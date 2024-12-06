@@ -4,7 +4,7 @@ import { TextField, Box, Button, Alert } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import InputManager from '../../Funcoes/MultiInput';
+import InputManager from '../Funcoes/MultiInput';
 import Grid from '@mui/material/Grid2'; // Usando Grid2
 import Typography from '@mui/material/Typography';
 
@@ -79,7 +79,7 @@ const CurrencyInput = () => {
       variant="h5" 
       component="h1"
       >
-        Cadastro de Orcamento
+        Cadastro de Orçamento
       </Typography>
    
       <Grid
@@ -117,6 +117,7 @@ const CurrencyInput = () => {
         <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
+              required
               label="Data de Início"
               value={startDate}
               onChange={setStartDate}
@@ -133,6 +134,7 @@ const CurrencyInput = () => {
         <Grid xs={12} sm={6} sx={{width:'40%',marginRight:'5%'}}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
+              required
               label="Data de Finalização"
               value={endDate}
               onChange={setEndDate}
