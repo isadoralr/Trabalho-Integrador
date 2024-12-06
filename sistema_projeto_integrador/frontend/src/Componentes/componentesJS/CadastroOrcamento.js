@@ -4,6 +4,8 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import InputManager from '../Funcao/MultiInput';
+import Grid from '@mui/material/Grid2'; // Usando Grid2
 
 const CurrencyInput = () => {
   const [value, setValue] = useState('');
@@ -11,6 +13,7 @@ const CurrencyInput = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState([]);
 
   const formatCurrency = (value) => {
     const numericValue = value.replace(/\D/g, '');
@@ -42,42 +45,60 @@ const CurrencyInput = () => {
         value,
         startDate: startDate.format('YYYY-MM-DD'),
         endDate: endDate.format('YYYY-MM-DD'),
+        formData,
       });
-      // Clear form fields after submission if needed
     }
+  };
+
+  const handleDynamicInputChange = (values) => {
+    setFormData(values); // Atualiza o estado com os pares entrada/saída
   };
 
   return (
     <Box
-      sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }}
+      sx={{
+        '& .MuiTextField-root': { m: 1, width: '100%' },
+        maxWidth: '1000px',
+        margin: '0 auto',
+      }}
       component="form"
       onSubmit={handleSubmit}
     >
-      <Box>
-        <TextField
-          required
-          id="outlined-required"
-          label="Nome do orçamento"
-          placeholder="Digite um nome"
-          value={nomeorcamento}
-          onChange={(e) => setNomercamento(e.target.value)}
-          error={!!errors.nomeorcamento}
-          helperText={errors.nomeorcamento}
-        />
-        <TextField
-          required
-          label="Mão de Obra / h"
-          value={value}
-          onChange={handleChange}
-          placeholder="Digite um valor"
-          variant="outlined"
-          error={!!errors.value}
-          helperText={errors.value}
-        />
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DemoContainer components={['DatePicker']}>
+      {/* Primeira linha: 2 inputs */}
+      <Grid container spacing={2}>
+        <Grid xs={12} sm={6}
+        sx={{width:'40%'}}
+        >
+          <TextField
+            required
+            label="Nome do orçamento"
+            placeholder="Digite um nome"
+            value={nomeorcamento}
+            onChange={(e) => setNomercamento(e.target.value)}
+            error={!!errors.nomeorcamento}
+            helperText={errors.nomeorcamento}
+          />
+        </Grid>
+        <Grid xs={12} sm={6} sx={{width:'40%'}}>
+          <TextField
+            required
+            label="Mão de Obra / h"
+            value={value}
+            onChange={handleChange}
+            placeholder="Digite um valor"
+            variant="outlined"
+            error={!!errors.value}
+            helperText={errors.value}
+          />
+        </Grid>
+      </Grid>
+
+      {/* Segunda linha: 2 inputs */}
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        <Grid xs={12} sm={6} sx={{width:'40%'}}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Data de Inicio"
+              label="Data de Início"
               value={startDate}
               onChange={setStartDate}
               renderInput={(params) => (
@@ -88,6 +109,10 @@ const CurrencyInput = () => {
                 />
               )}
             />
+          </LocalizationProvider>
+        </Grid>
+        <Grid xs={12} sm={6} sx={{width:'40%'}}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Data de Finalização"
               value={endDate}
@@ -100,12 +125,23 @@ const CurrencyInput = () => {
                 />
               )}
             />
-          </DemoContainer>
-        </LocalizationProvider>
+          </LocalizationProvider>
+        </Grid>
+      </Grid>
+
+      {/* Terceira linha: InputManager */}
+      <Box sx={{ mt: 2 }}>
+        <InputManager onChange={handleDynamicInputChange} />
       </Box>
-      <Button type="submit" variant="outlined" sx={{ mt: 2 }}>
-        Cadastrar
-      </Button>
+
+      {/* Botão de envio */}
+      <Box sx={{ mt: 2 }}>
+        <Button type="submit" variant="outlined">
+          Cadastrar
+        </Button>
+      </Box>
+
+      {/* Alerta de erro */}
       {Object.keys(errors).length > 0 && (
         <Alert severity="error" sx={{ mt: 2 }}>
           Preencha todos os campos obrigatórios.
