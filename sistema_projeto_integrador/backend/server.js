@@ -175,6 +175,17 @@ app.post('/cadastro-ferramenta', async (req, res) => {
     }
 });
 
+app.patch('/ferramentas/:id', async (req, res) => {
+    const { id } = req.params; 
+    const { obtido } = req.body;
+    try { 
+        await db.none('UPDATE ferramenta SET obtido = $1 WHERE fid = $2', [obtido, id]);
+        res.status(200).send('Status da ferramenta atualizado com sucesso.');
+    } catch (error) {
+        res.status(500).send('Erro ao atualizar status da ferramenta.'); 
+    }
+});
+
 let resultadoTotalMaoDeObra = null;
 let resultadoTotalTransporte = null;
 let resultadoTotalMateriais = null;

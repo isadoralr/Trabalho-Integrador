@@ -27,7 +27,7 @@ const MateriaisFerramentas = () => {
 
   const handleCheckboxChange = async (id, obtido) => {
     try {
-      await axios.patch(`/api/ferramentas/${id}`, { obtido: !obtido });
+      await axios.patch(`/ferramentas/${id}`, { obtido: !obtido });
       setFerramentas(ferramentas.map(ferramenta => ferramenta.fid === id ? { ...ferramenta, obtido: !obtido } : ferramenta));
     } catch (error) {
       console.error('Error updating tool status:', error);
