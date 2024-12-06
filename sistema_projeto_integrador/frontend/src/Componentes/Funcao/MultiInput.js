@@ -32,7 +32,7 @@ const InputManager = ({ onChange }) => {
   }, [inputs, onChange]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '40%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%',marginBottom:'10px' }}>
       {/* Dropdown de seleção */}
       <TextField
         select

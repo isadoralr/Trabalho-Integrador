@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { TextField, Box, Button, Alert } from '@mui/material';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+// import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import InputManager from '../Funcao/MultiInput';
+import InputManager from '../../Funcoes/MultiInput';
 import Grid from '@mui/material/Grid2'; // Usando Grid2
+import Typography from '@mui/material/Typography';
+
 
 const CurrencyInput = () => {
   const [value, setValue] = useState('');
@@ -56,18 +58,34 @@ const CurrencyInput = () => {
 
   return (
     <Box
+    borderRadius="30px"
+    border="2px solid gray" // Define a borda
       sx={{
         '& .MuiTextField-root': { m: 1, width: '100%' },
         maxWidth: '1000px',
         margin: '0 auto',
+        // backgroundColor: 'blue',
       }}
       component="form"
       onSubmit={handleSubmit}
+      // bgcolor="#e3f2fd"
     >
-      {/* Primeira linha: 2 inputs */}
-      <Grid container spacing={2}>
+      <Typography 
+      sx={{
+        textAlign:'center',
+        marginTop:'10px',
+        marginBottom: '10px',
+      }}
+      variant="h5" 
+      component="h1"
+      >
+        Cadastro de Orcamento
+      </Typography>
+   
+      <Grid
+      container spacing={2}>
         <Grid xs={12} sm={6}
-        sx={{width:'40%'}}
+        sx={{width:'40%',marginLeft:'5%'}}
         >
           <TextField
             required
@@ -79,7 +97,8 @@ const CurrencyInput = () => {
             helperText={errors.nomeorcamento}
           />
         </Grid>
-        <Grid xs={12} sm={6} sx={{width:'40%'}}>
+        <Grid
+         xs={12} sm={6} sx={{width:'40%',marginRight:'5%'}}>
           <TextField
             required
             label="Mão de Obra / h"
@@ -95,7 +114,7 @@ const CurrencyInput = () => {
 
       {/* Segunda linha: 2 inputs */}
       <Grid container spacing={2} sx={{ mt: 2 }}>
-        <Grid xs={12} sm={6} sx={{width:'40%'}}>
+        <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Data de Início"
@@ -111,7 +130,7 @@ const CurrencyInput = () => {
             />
           </LocalizationProvider>
         </Grid>
-        <Grid xs={12} sm={6} sx={{width:'40%'}}>
+        <Grid xs={12} sm={6} sx={{width:'40%',marginRight:'5%'}}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Data de Finalização"
@@ -129,19 +148,23 @@ const CurrencyInput = () => {
         </Grid>
       </Grid>
 
-      {/* Terceira linha: InputManager */}
-      <Box sx={{ mt: 2 }}>
-        <InputManager onChange={handleDynamicInputChange} />
-      </Box>
-
-      {/* Botão de envio */}
-      <Box sx={{ mt: 2 }}>
+      <Grid container spacing={2} sx={{ mt: 2 ,marginBottom:'10px'}}>
+        <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
+          <InputManager onChange={handleDynamicInputChange} />
+        </Grid>
+      <Grid xs={12} sm={6} sx={{marginRight:'5%'}}>
+      {/* botao de enviar o cadastro */}
+        <Box
+        sx={{ mt: 2,marginLeft:'10%'}}
+        >
         <Button type="submit" variant="outlined">
           Cadastrar
         </Button>
       </Box>
+      </Grid>
+    </Grid>
 
-      {/* Alerta de erro */}
+      {/* mostrar o erro que seria a falta de alguma enrada */}
       {Object.keys(errors).length > 0 && (
         <Alert severity="error" sx={{ mt: 2 }}>
           Preencha todos os campos obrigatórios.
