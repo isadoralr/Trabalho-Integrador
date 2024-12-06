@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { TextField, Box, Button, Alert, Grid, Typography } from "@mui/material";
+import { TextField, Box, Button, Alert, Typography } from "@mui/material";
 import axios from "axios";
-import "../componentesCSS/CadastroFerramenta.css"; // Arquivo CSS
+import React from  'react';
+import { useState } from "react";
+import Grid from '@mui/material/Grid2'; // Usando Grid2
 
-const CadastroFerramenta = () => {
+
+const Relatorios = () => {
   const [formData, setFormData] = useState({
     nome: "",
     valu: "",
@@ -11,15 +13,15 @@ const CadastroFerramenta = () => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
+  
   const formatCurrency = (value) => {
     // Remove caracteres não numéricos
-    const numericValue = value.replace(/\D/g, "");
+    const numericValue = value.replace(/\D/g,'');
     // Formata como moeda
     const formattedValue = (Number(numericValue) / 100).toFixed(2).replace('.', ',');
     return formattedValue;
   };
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -54,18 +56,32 @@ const CadastroFerramenta = () => {
     }
   };
 
+
   return (
-    <Box
-      className="cadastro-ferramenta-form"
+    <Box>
+      <Box 
+      borderRadius="30px" border="2px solid gray" // define a borda
+      sx={{
+        '& .MuiTextField-root': { m: 1, width: '100%' },
+        maxWidth: '1000px',
+        margin: '0 auto',
+      }}
       component="form"
       onSubmit={handleSubmit}
-      sx={{ maxWidth: 600, margin: "auto", padding: "20px" }}
-    >
-      <Typography variant="h5" component="h1" className="cadastro-ferramenta-titulo">
-        Cadastro de Ferramenta
+      >
+      <Typography 
+      sx={{
+        textAlign:'center',
+        marginTop:'10px',
+        marginBottom: '10px',
+      }}
+      variant="h5" 
+      component="h1"
+      > Cadastro de Ferramenta
       </Typography>
+      
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+      <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
           <TextField
             name="nome"
             label="Nome da Ferramenta"
@@ -74,10 +90,10 @@ const CadastroFerramenta = () => {
             error={!!errors.nome}
             helperText={errors.nome}
             required
-            fullWidth
+            // fullWidth
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+      </Grid>
+      <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
           <TextField
             name="valor"
             label="Valor Unitário"
@@ -86,14 +102,20 @@ const CadastroFerramenta = () => {
             error={!!errors.valu}
             helperText={errors.valu}
             required
-            fullWidth
+            // fullWidth
           />
-        </Grid>
       </Grid>
-      <Box sx={{ mt: 2 }}>
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          Cadastrar
+      </Grid>
+
+      <Grid
+      container spacing={1} sx={{ mt: 0 ,marginBottom:'10px'}}>
+        {/* <Box sx={{ mt: 2,marginLeft:'100%'}}> */}
+        <Button 
+        sx={{marginLeft:'30%' ,marginRight:'30%'}}
+        type="submit" variant="contained" color="primary" fullWidth>
+        Cadastrar
         </Button>
+      </Grid>
       </Box>
       {successMessage && (
         <Alert severity="success" sx={{ mt: 2 }}>
@@ -106,7 +128,7 @@ const CadastroFerramenta = () => {
         </Alert>
       )}
     </Box>
-  );
-};
+  )
+}
 
-export default CadastroFerramenta;
+export default Relatorios;
