@@ -40,7 +40,7 @@ const NAVIGATION = [
   },
   {
     segment: './TelaInicial/Relatorios',
-    title: 'Relatorios',
+    title: 'Relatórios',
     icon: <ContentPasteSearchIcon />,
   },
   {
@@ -55,7 +55,7 @@ const NAVIGATION = [
   },
   {
     segment: './TelaInicial/HistoricoServico',
-    title: 'Historico de Servico',
+    title: 'Historico de Serviços',
     icon: <LayersIcon />,
   },
 ];
