@@ -34,7 +34,7 @@ const NAVIGATION = [
     icon: <CalendarMonthIcon />,
   },
   {
-    segment: './TelaInicial/cadastradoOrcamento',
+    segment: './TelaInicial/CadastroOrcamento',
     title: 'Cadastro de Orcamento',
     icon: <RequestPageIcon />,
   },

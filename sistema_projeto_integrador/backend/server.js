@@ -10,30 +10,20 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 const pgp = require("pg-promise")({});
 require("dotenv").config();
 
-
-const usuario = process.env.DB_USER || "padrao";
-const senha = process.env.DB_PASSWORD || "conexaosistema123";
-const host = process.env.DB_HOST || "localhost";
-const port = process.env.DB_PORT || 5432;
-const database = process.env.DB_NAME || "planomei";
-
-const db = pgp(`postgres://${usuario}:${senha}@${host}:${port}/${database}`);
-module.exports = db;
+// Configuração do banco de dados
+const db = pgp(`postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
 
 db.connect()
-  .then(obj => {
-    obj.done(); // success, release the connection
-    console.log("Conexão bem-sucedida com o banco de dados");
-  })
-  .catch(error => {
-    console.error("Erro ao conectar ao banco de dados:", error.message);
-  });
+    .then(() => console.log("Conexão bem-sucedida com o banco de dados"))
+    .catch((error) => console.error("Erro ao conectar ao banco de dados:", error.message));
 
+// Configuração do Express
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Sessão (opcional se você usar apenas JWT)
 app.use(
     session({
         secret: "alguma_frase_muito_doida_pra_servir_de_SECRET",
@@ -49,14 +39,14 @@ app.use(passport.session());
 passport.use(
     new LocalStrategy(
         {
-            usernameField: "username",
+            usernameField: "email",
             passwordField: "password",
         },
-        async (username, password, done) => {
+        async (email, password, done) => {
             try {
                 const user = await db.oneOrNone(
                     "SELECT email, senha FROM usuario WHERE email = $1;",
-                    [username]
+                    [email]
                 );
 
                 if (!user) {
@@ -87,7 +77,7 @@ passport.use(
             try {
                 const user = await db.oneOrNone(
                     "SELECT * FROM usuario WHERE email = $1;",
-                    [payload.username]
+                    [payload.email]
                 );
 
                 if (user) {
@@ -111,9 +101,49 @@ passport.deserializeUser((user, done) => {
     done(null, user);
 });
 
+// Rotas
+app.post(
+    "/login",
+    passport.authenticate("local", { session: false }),
+    (req, res) => {
+        const token = jwt.sign({ email: req.user.email }, "your-secret-key", {
+            expiresIn: "1h",
+        });
+
+        res.json({ message: "Login realizado com sucesso", token: token });
+    }
+);
+
+app.post("/logout", (req, res) => {
+    res.json({ message: "Logout realizado com sucesso" });
+});
+
 // Inicia o servidor
 app.listen(3001, () => {
     console.log("Servidor rodando na porta 3001");
+});
+
+app.post(
+	"/login",
+	passport.authenticate("local", { session: false }),
+	(req, res) => {
+
+		// Cria o token JWT
+		const token = jwt.sign({ username: req.body.username }, "your-secret-key", {
+			expiresIn: "1h",
+		});
+
+		res.json({ message: "Login successful", token: token });
+	},
+);
+
+app.post("/logout", function (req, res, next) {
+	req.logout(function (err) {
+		if (err) {
+			return next(err);
+		}
+		res.redirect("/");
+	});
 });
 
 let resultadoTotalMaoDeObra = null;

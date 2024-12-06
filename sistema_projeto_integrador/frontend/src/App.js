@@ -1,12 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./components/Login";
-import Dashboard from "./components/Dashboard"; // Página protegida
+import Agenda from "./Componentes/componentesJS/Agenda";
+import CadastroCliente from "./Componentes/componentesJS/CadastroCliente";
+import CadastroOrcamento from "./Componentes/componentesJS/CadastroOrcamento";
+import HistoricoServico from "./Componentes/componentesJS/HistoricoServico";
+import MateriaisFerramentas from "./Componentes/componentesJS/MateriaisFerramentas";
+import Painel from "./Componentes/componentesJS/Painel";
+import Relatorios from "./Componentes/componentesJS/Relatorios";
+import Login from "./LoginLogout/Login";
+import Logout from "./LoginLogout/Logout";
+import DashboardLayoutBasic from "./DashBoard/TelaInicial";
 import axios from "axios";
+import "./LoginLogout/Login.css";
 
 // Configuração global do Axios
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "http://localhost:3001/";
 axios.defaults.headers.common["Content-Type"] = "application/json;charset=utf-8";
+
+// Função para proteger rotas
+const PrivateRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem("token") !== null;
+  return isAuthenticated ? children : <Navigate to="/" />;
+};
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -28,19 +43,29 @@ function App() {
     return (
         <Router>
             <Routes>
-                {/* Rotas públicas */}
                 <Route
-                    path="/login"
+                    path="/"
                     element={isLoggedIn ? <Navigate to="/TelaInicial" /> : <Login setIsLoggedIn={setIsLoggedIn} />}
                 />
-                {/* Rotas protegidas */}
                 <Route
                     path="/TelaInicial"
-                    element={isLoggedIn ? <Dashboard handleLogout={handleLogout} /> : <Navigate to="/login" />}
-                />
-
+                    element={
+                      <PrivateRoute>
+                        <DashboardLayoutBasic handleLogout={handleLogout} />
+                      </PrivateRoute>
+                    }
+                >
+                    <Route path="Painel" element={<Painel />} />
+                    <Route path="Agenda" element={<Agenda />} />
+                    <Route path="CadastroCliente" element={<CadastroCliente />} />
+                    <Route path="HistoricoServico" element={<HistoricoServico />} />
+                    <Route path="CadastroOrcamento" element={<CadastroOrcamento />} />
+                    <Route path="MateriaisFerramentas" element={<MateriaisFerramentas />} />
+                    <Route path="Relatorios" element={<Relatorios />} />
+                </Route>
+                <Route path="/logout" element={<Logout />} />
                 {/* Redireciona qualquer rota não definida */}
-                <Route path="*" element={<Navigate to={isLoggedIn ? "/TelaInicial" : "/login"} />} />
+                <Route path="*" element={<Navigate to={isLoggedIn ? "/TelaInicial" : "/"} replace />} />
             </Routes>
         </Router>
     );

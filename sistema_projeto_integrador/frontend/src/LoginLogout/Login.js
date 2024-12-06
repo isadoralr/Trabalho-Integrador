@@ -6,10 +6,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function Login({ setIsLoggedIn }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState({ email: false, password: false });
-  const [loginError, setLoginError] = useState(""); // Para mensagens de erro do servidor
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [error, setError] = React.useState({ email: false, password: false });
+  const [loginError, setLoginError] = React.useState(""); // Para mensagens de erro do servidor
   const navigate = useNavigate();
 
   // Função para tratar o envio do formulário
@@ -29,16 +29,23 @@ function Login({ setIsLoggedIn }) {
       // Envio dos dados para o servidor
       const response = await axios.post("/login", { email, password });
       const { token } = response.data;
+      console.log("Token recebido:", token);
 
       // Salva o token no localStorage e atualiza o estado de login
       localStorage.setItem("token", token);
+      console.log("Antes de setIsLoggedIn:", setIsLoggedIn);
       setIsLoggedIn(true);
+      console.log("Depois de setIsLoggedIn:", setIsLoggedIn);
 
       // Redireciona para a página protegida
       navigate("/TelaInicial");
     } catch (err) {
-      console.error("Erro ao fazer login:", err);
-      setLoginError("Credenciais inválidas. Verifique seu email e senha.");
+      console.error("Erro ao fazer login:", err.response || err.message || err);
+      if (err.response && err.response.status === 401) {
+        setLoginError("Credenciais inválidas. Verifique seu email e senha.");
+      } else {
+        setLoginError("Erro inesperado. Tente novamente.");
+      }
     }
   };
 
