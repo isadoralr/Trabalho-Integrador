@@ -7,7 +7,7 @@ import CadastroOrcamento from "./Componentes/componentesJS/CadastroOrcamento";
 import HistoricoServico from "./Componentes/componentesJS/HistoricoServico";
 import MateriaisFerramentas from "./Componentes/componentesJS/MateriaisFerramentas";
 import Painel from "./Componentes/componentesJS/Painel";
-import Relatorios from "./Componentes/componentesJS/Relatorio";
+import Relatorios from "./Componentes/componentesJS/Relatorios";
 import Login from "./LoginLogout/Login";
 import Logout from "./LoginLogout/Logout";
 import DashboardLayoutBasic from "./DashBoard/TelaInicial";
@@ -37,7 +37,7 @@ const router = createBrowserRouter([
           { path: "/TelaInicial/Agenda", element: <Agenda /> },
           { path: "/TelaInicial/CadastroCliente", element: <CadastroCliente /> },
           { path: "/TelaInicial/HistoricoServico", element: <HistoricoServico /> },
-          { path: "/TelaInicial/cadastroOrcamento", element: <CadastroOrcamento /> },
+          { path: "/TelaInicial/CadastroOrcamento", element: <CadastroOrcamento /> },
           { path: "/TelaInicial/MateriaisFerramentas", element: <MateriaisFerramentas /> },
           { path: "/TelaInicial/Relatorios", element: <Relatorios /> },
         ],

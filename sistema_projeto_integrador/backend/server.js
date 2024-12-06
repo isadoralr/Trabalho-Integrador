@@ -1,16 +1,127 @@
 const express = require("express");
-const server = express();
-server.use(express.json());
-server.use(express.urlencoded({extended: true}));//Transforma a requisição(string)
+const cors = require("cors");
+const session = require("express-session");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
+const pgp = require("pg-promise")({});
+require("dotenv").config();
 
-server.listen(3001,() => {console.log('servidor rodando')});
+
+const usuario = process.env.DB_USER || "padrao";
+const senha = process.env.DB_PASSWORD || "conexaosistema123";
+const host = process.env.DB_HOST || "localhost";
+const port = process.env.DB_PORT || 5432;
+const database = process.env.DB_NAME || "planomei";
+
+const db = pgp(`postgres://${usuario}:${senha}@${host}:${port}/${database}`);
+module.exports = db;
+
+db.connect()
+  .then(obj => {
+    obj.done(); // success, release the connection
+    console.log("Conexão bem-sucedida com o banco de dados");
+  })
+  .catch(error => {
+    console.error("Erro ao conectar ao banco de dados:", error.message);
+  });
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+    session({
+        secret: "alguma_frase_muito_doida_pra_servir_de_SECRET",
+        resave: false,
+        saveUninitialized: false,
+        cookie: { secure: process.env.NODE_ENV === "production" },
+    })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Estratégia Local
+passport.use(
+    new LocalStrategy(
+        {
+            usernameField: "username",
+            passwordField: "password",
+        },
+        async (username, password, done) => {
+            try {
+                const user = await db.oneOrNone(
+                    "SELECT email, senha FROM usuario WHERE email = $1;",
+                    [username]
+                );
+
+                if (!user) {
+                    return done(null, false, { message: "Usuário não encontrado." });
+                }
+
+                const passwordMatch = await bcrypt.compare(password, user.senha);
+                if (!passwordMatch) {
+                    return done(null, false, { message: "Senha incorreta." });
+                }
+
+                return done(null, user);
+            } catch (error) {
+                return done(error);
+            }
+        }
+    )
+);
+
+// Estratégia JWT
+passport.use(
+    new JwtStrategy(
+        {
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: "your-secret-key",
+        },
+        async (payload, done) => {
+            try {
+                const user = await db.oneOrNone(
+                    "SELECT * FROM usuario WHERE email = $1;",
+                    [payload.username]
+                );
+
+                if (user) {
+                    return done(null, user);
+                } else {
+                    return done(null, false);
+                }
+            } catch (error) {
+                return done(error, false);
+            }
+        }
+    )
+);
+
+// Serialização e desserialização
+passport.serializeUser((user, done) => {
+    done(null, { email: user.email });
+});
+
+passport.deserializeUser((user, done) => {
+    done(null, user);
+});
+
+// Inicia o servidor
+app.listen(3001, () => {
+    console.log("Servidor rodando na porta 3001");
+});
 
 let resultadoTotalMaoDeObra = null;
 let resultadoTotalTransporte = null;
 let resultadoTotalMateriais = null;
 
 // Rota GET para retornar os dados da mão de obra
-server.get("/obter-total-mao-de-obra", (req, res) => {
+app.get("/obter-total-mao-de-obra", (req, res) => {
     if (resultadoTotalMaoDeObra) {
         res.send(resultadoTotalMaoDeObra);
     } else {
@@ -19,7 +130,7 @@ server.get("/obter-total-mao-de-obra", (req, res) => {
 });
 
 // Rota GET para retornar os dados do transporte
-server.get("/obter-total-custo-transporte", (req, res) => {
+app.get("/obter-total-custo-transporte", (req, res) => {
     if (resultadoTotalTransporte) {
         res.send(resultadoTotalTransporte);
     } else {
@@ -28,7 +139,7 @@ server.get("/obter-total-custo-transporte", (req, res) => {
 });
 
 // Rota GET para retornar os dados dos materiais
-server.get("/obter-total-custo-materiais", (req, res) => {
+app.get("/obter-total-custo-materiais", (req, res) => {
     if (resultadoTotalMateriais) {
         res.send(resultadoTotalMateriais);
     } else {
@@ -37,7 +148,7 @@ server.get("/obter-total-custo-materiais", (req, res) => {
 });
 
 // Rota GET para calcular o total do serviço (soma dos custos de mão de obra, transporte e materiais)
-server.get("/obter-total-servico", (req, res) => {
+app.get("/obter-total-servico", (req, res) => {
     if (resultadoTotalMaoDeObra && resultadoTotalTransporte && resultadoTotalMateriais) {
         // Somando os custos totais de mão de obra, transporte e materiais
         const totalServico = resultadoTotalMaoDeObra.maoObraTotal + 
@@ -82,7 +193,7 @@ function contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados) {
 }
 
 // Rota POST para calcular o custo total da mão de obra e armazenar os resultados
-server.post("/calcular-total-mao-de-obra", (req, res) => {
+app.post("/calcular-total-mao-de-obra", (req, res) => {
     const { startDate, endDate, repetition, shifts, laborCostPerHour, diasNaoTrabalhados } = req.body;
 
     const start = new Date(startDate);
@@ -102,7 +213,7 @@ server.post("/calcular-total-mao-de-obra", (req, res) => {
 });
 
 // Rota POST para calcular o custo total de transporte e armazenar os resultados
-server.post("/calcular-custo-total-transporte", (req, res) => {
+app.post("/calcular-custo-total-transporte", (req, res) => {
     const { valorTransportePorDia, startDate, endDate, repetition, diasNaoTrabalhados } = req.body;
 
     const start = new Date(startDate);
@@ -119,7 +230,7 @@ server.post("/calcular-custo-total-transporte", (req, res) => {
 });
 
 // Rota POST para calcular o custo total dos materiais e armazenar os resultados
-server.post("/calcular-custo-total-materiais", (req, res) => {
+app.post("/calcular-custo-total-materiais", (req, res) => {
     const materiais = req.body.materiais;
     let totalCost = 0;
     let totalNonObtainedCost = 0;
