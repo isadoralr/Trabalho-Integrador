@@ -139,7 +139,41 @@ app.post('/cadastro-cliente', async (req, res) => {
       res.status(500).send(`Erro ao cadastrar cliente: ${err.message}`);
     }
   });
-  
+
+// Rota para buscar todos os clientes
+app.get("/clientes", async (req, res) => {
+    try {
+      // Consulta no banco de dados para pegar todos os clientes
+      const clientes = await db.any("SELECT cid, nome, tel FROM cliente");
+      res.json(clientes); // Retorna a lista de clientes em formato JSON
+    } catch (err) {
+      console.error("Erro ao buscar clientes:", err);
+      res.status(500).send("Erro ao buscar clientes.");
+    }
+});
+
+app.get("/ferramentas", async (req, res) => {
+    try {
+      // Consulta no banco de dados para pegar todas as ferramentas
+      const ferramentas = await db.any("SELECT fid, nome, valu, obtido FROM ferramenta");
+      res.json(ferramentas); // Retorna a lista de ferramentas em formato JSON
+    } catch (err) {
+      console.error("Erro ao buscar ferramentas:", err);
+      res.status(500).send("Erro ao buscar ferramentas.");
+    }
+});
+
+app.post('/cadastro-ferramenta', async (req, res) => {
+    const { nome, valu} = req.body;
+    const obtido = false;
+    try {
+      await db.none('INSERT INTO ferramenta (nome, valu, obtido) VALUES ($1, $2, $3)', [nome, valu, obtido]);
+      res.status(201).send('Ferramenta cadastrada com sucesso.');
+    } catch (err) {
+      console.error('Erro ao cadastrar ferramenta:', err.message);
+      res.status(500).send(`Erro ao cadastrar ferramenta: ${err.message}`);
+    }
+});
 
 let resultadoTotalMaoDeObra = null;
 let resultadoTotalTransporte = null;

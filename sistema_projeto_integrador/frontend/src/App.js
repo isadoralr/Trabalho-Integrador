@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Agenda from "./Componentes/componentesJS/Agenda";
+import Clientes from "./Componentes/componentesJS/Clientes";
 import CadastroCliente from "./Componentes/componentesJS/CadastroCliente";
 import CadastroOrcamento from "./Componentes/componentesJS/CadastroOrcamento";
 import HistoricoServico from "./Componentes/componentesJS/HistoricoServico";
@@ -57,7 +58,8 @@ function App() {
                 >
                     <Route path="Painel" element={<Painel />} />
                     <Route path="Agenda" element={<Agenda />} />
-                    <Route path="CadastroCliente" element={<CadastroCliente />} />
+                    <Route path="Clientes" element={<Clientes/>} />
+                    <Route path="CadastroCliente" element={<CadastroCliente/>} />
                     <Route path="HistoricoServico" element={<HistoricoServico />} />
                     <Route path="CadastroOrcamento" element={<CadastroOrcamento />} />
                     <Route path="MateriaisFerramentas" element={<MateriaisFerramentas />} />
