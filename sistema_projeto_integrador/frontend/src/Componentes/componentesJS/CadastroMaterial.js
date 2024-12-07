@@ -1,11 +1,9 @@
 import { TextField, Box, Button, Alert, Typography } from "@mui/material";
 import axios from "axios";
-import React from  'react';
-import { useState } from "react";
+import React, { useState } from "react";
 import Grid from '@mui/material/Grid2'; // Usando Grid2
 
-
-const Material = () => {
+const CadastroMaterial = ({ onClose, setMateriais }) => {
   const [formData, setFormData] = useState({
     nome: "",
     valu: "",
@@ -15,17 +13,13 @@ const Material = () => {
   const [errorMessage, setErrorMessage] = useState("");
   
   const formatCurrency = (value) => {
-    // Remove caracteres não numéricos
     const numericValue = value.replace(/\D/g,'');
-    // Formata como moeda
     const formattedValue = (Number(numericValue) / 100).toFixed(2).replace('.', ',');
     return formattedValue;
   };
   
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Formatação do preço
     if (name === "valor") {
       setFormData({ ...formData, valu: formatCurrency(value) });
     } else {
@@ -35,7 +29,7 @@ const Material = () => {
 
   const validateFields = () => {
     const newErrors = {};
-    if (!formData.nome.trim()) newErrors.nome = "O nome da ferramenta é obrigatório.";
+    if (!formData.nome.trim()) newErrors.nome = "O nome do material é obrigatório.";
     if (!formData.valu.trim()) newErrors.valu = "O valor unitário é obrigatório.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -45,55 +39,43 @@ const Material = () => {
     e.preventDefault();
     if (validateFields()) {
       try {
-        await axios.post("/cadastro-ferramenta", formData);
-        setSuccessMessage("Ferramenta cadastrada com sucesso!");
+        const response = await axios.post("/cadastro-material", formData);
+        setSuccessMessage("Material cadastrado com sucesso!");
+        setMateriais((prev) => [...prev, response.data]);
         setFormData({ nome: "", valu: "" });
         setErrors({});
+        onClose(); // Fechar o diálogo ao sucesso
       } catch (err) {
         console.error(err);
-        setErrorMessage("Erro ao cadastrar ferramenta. Tente novamente.");
+        setErrorMessage("Erro ao cadastrar material. Tente novamente.");
       }
     }
   };
 
-
   return (
-    <Box>
-      <Box 
-      borderRadius="30px" border="2px solid gray" // define a borda
-      sx={{
-        '& .MuiTextField-root': { m: 1, width: '100%' },
-        maxWidth: '1000px',
-        margin: '0 auto',
-      }}
-      component="form"
-      onSubmit={handleSubmit}
-      >
+    <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
       <Typography 
-      sx={{
-        textAlign:'center',
-        marginTop:'10px',
-        marginBottom: '10px',
-      }}
-      variant="h5" 
-      component="h1"
-      > Cadastro de Material
+        sx={{ textAlign: 'center', marginBottom: 2 }}
+        variant="h5" 
+        component="h1"
+      >
+        Cadastrar novo Material
       </Typography>
       
       <Grid container spacing={2}>
-      <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
+        <Grid item xs={12} sm={6}>
           <TextField
             name="nome"
-            label="Nome da Material"
+            label="Nome do Material"
             value={formData.nome}
             onChange={handleChange}
             error={!!errors.nome}
             helperText={errors.nome}
             required
-            // fullWidth
+            fullWidth
           />
-      </Grid>
-      <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
+        </Grid>
+        <Grid item xs={12} sm={6}>
           <TextField
             name="valor"
             label="Valor Unitário"
@@ -102,21 +84,34 @@ const Material = () => {
             error={!!errors.valu}
             helperText={errors.valu}
             required
-            // fullWidth
+            fullWidth
           />
-      </Grid>
+        </Grid>
       </Grid>
 
-      <Grid
-      container spacing={1} sx={{ mt: 0 ,marginBottom:'10px'}}>
-        {/* <Box sx={{ mt: 2,marginLeft:'100%'}}> */}
-        <Button 
-        sx={{marginLeft:'30%' ,marginRight:'30%'}}
-        type="submit" variant="contained" color="primary" fullWidth>
-        Cadastrar
-        </Button>
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        <Grid item xs={6}>
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
+            fullWidth
+          >
+            Cadastrar
+          </Button>
+        </Grid>
+        <Grid item xs={6}>
+          <Button 
+            onClick={onClose} 
+            variant="outlined" 
+            color="secondary" 
+            fullWidth
+          >
+            Cancelar
+          </Button>
+        </Grid>
       </Grid>
-      </Box>
+
       {successMessage && (
         <Alert severity="success" sx={{ mt: 2 }}>
           {successMessage}
@@ -128,7 +123,7 @@ const Material = () => {
         </Alert>
       )}
     </Box>
-  )
-}
+  );
+};
 
-export default Material;
+export default CadastroMaterial;

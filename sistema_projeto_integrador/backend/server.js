@@ -266,6 +266,67 @@ app.put('/ferramentas/:fid', async (req, res) => {
     }
 });
 
+app.get("/materiais", async (req, res) => {
+    try {
+      // Consulta no banco de dados para pegar todas as materiais
+      const materiais = await db.any("SELECT mid, nome, valu FROM material");
+      res.json(materiais); // Retorna a lista de materiais em formato JSON
+    } catch (err) {
+      console.error("Erro ao buscar materiais:", err);
+      res.status(500).send("Erro ao buscar materiais.");
+    }
+});
+
+app.post('/cadastro-material', async (req, res) => {
+    const { nome, valu} = req.body;
+    try {
+      await db.none('INSERT INTO material (nome, valu) VALUES ($1, $2)', [nome, valu]);
+      res.status(201).send('Material cadastrada com sucesso.');
+    } catch (err) {
+      console.error('Erro ao cadastrar material:', err.message);
+      res.status(500).send(`Erro ao cadastrar material: ${err.message}`);
+    }
+});
+
+// Deletar material
+app.delete('/materiais/:mid', async (req, res) => {
+    const { mid } = req.params;
+    try {
+      await db.none('DELETE FROM material WHERE mid = $1', [mid]);
+      res.status(204).send(); // Sucesso sem corpo de resposta
+    } catch (error) {
+      console.error('Erro ao excluir material:', error);
+      res.status(500).send('Erro ao excluir material.');
+    }
+  });
+  
+
+// Rota para atualizar uma material pelo ID
+app.put('/materiais/:mid', async (req, res) => {
+    const { mid } = req.params; // Pega o ID do material a ser alterado
+    const { nome, valu } = req.body; // Dados enviados pelo frontend
+
+    try {
+        // Validação de entrada
+        if (!nome || !valu) {
+            return res.status(400).send('Nome e valor unitário são obrigatórios.');
+        }
+
+        // Atualiza o material no banco de dados
+        const result = await db.none(
+            `UPDATE material 
+            SET nome = $1, valu = $2 
+            WHERE mid = $3`,
+            [nome, valu, mid] 
+        );
+
+        res.status(200).send('Material atualizada com sucesso.');
+    } catch (error) {
+        console.error('Erro ao atualizar material:', error);
+        res.status(500).send('Erro ao atualizar material. Tente novamente.');
+    }
+});
+
 let resultadoTotalMaoDeObra = null;
 let resultadoTotalTransporte = null;
 let resultadoTotalMateriais = null;
