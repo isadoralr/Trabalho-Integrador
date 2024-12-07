@@ -4,6 +4,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LockIcon from "@mui/icons-material/Lock";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
 function Login({ setIsLoggedIn }) {
   const [email, setEmail] = React.useState("");

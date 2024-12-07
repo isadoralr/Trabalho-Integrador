@@ -16,12 +16,13 @@ import RequestPageIcon from '@mui/icons-material/RequestPage';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
 import { Outlet } from 'react-router-dom';
+import { Logout } from '@mui/icons-material';
 
 //basicanmente o "kin: ..." é o nome da área que está os "botoes"
 const NAVIGATION = [
   {
     kind: 'header',//indica que tipo de elemento vai ser
-    title: 'Main items',//nome da area dos "botoes"
+    title: 'Opções',//nome da area dos "botoes"
   },
   {
     segment: './TelaInicial/Painel',//identificador desse item tipo usar (class)
@@ -58,6 +59,12 @@ const NAVIGATION = [
     title: 'Historico de Serviços',
     icon: <LayersIcon />,
   },
+  {
+    segment: './Logout',
+    title: 'Logout',
+    icon: <Logout/>,
+  },
+
 ];
 
 //extendeTheme e para abrigar varias funcoes de "theme"
@@ -71,7 +78,7 @@ const demoTheme = extendTheme({
       sm: 600,
       md: 600,
       lg: 1200,
-      xl: 1536,
+      xl: 1200,
     },
   },
 });

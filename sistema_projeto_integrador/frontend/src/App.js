@@ -11,7 +11,6 @@ import Login from "./LoginLogout/Login";
 import Logout from "./LoginLogout/Logout";
 import DashboardLayoutBasic from "./DashBoard/TelaInicial";
 import axios from "axios";
-import "./LoginLogout/Login.css";
 
 // Configuração global do Axios
 axios.defaults.baseURL = "http://localhost:3001/";
@@ -62,8 +61,9 @@ function App() {
                     <Route path="CadastroOrcamento" element={<CadastroOrcamento />} />
                     <Route path="MateriaisFerramentas" element={<MateriaisFerramentas />} />
                     <Route path="Relatorios" element={<Relatorios />} />
+                    <Route path="Sair" element={<Logout/>} />
                 </Route>
-                <Route path="/logout" element={<Logout />} />
+                <Route path="/Logout" element={<Logout />} />
                 {/* Redireciona qualquer rota não definida */}
                 <Route path="*" element={<Navigate to={isLoggedIn ? "/TelaInicial" : "/"} replace />} />
             </Routes>
