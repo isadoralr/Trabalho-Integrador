@@ -144,8 +144,8 @@ const Materiais = () => {
             <DialogContent>
                 <DialogContentText>
                 {selectedMaterial
-                    ? `Tem certeza de que deseja excluir a material "${selectedMaterial.nome}"?`
-                    : 'Nenhuma material selecionada.'}
+                    ? `Tem certeza de que deseja excluir o material "${selectedMaterial.nome}"?`
+                    : 'Nenhum material selecionada.'}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
