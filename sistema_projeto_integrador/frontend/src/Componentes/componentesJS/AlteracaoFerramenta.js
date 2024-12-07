@@ -1,30 +1,36 @@
-import { TextField, Box, Button, Alert, Typography } from "@mui/material";
-import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { Box, Button, TextField, Typography, Alert } from '@mui/material';
 import Grid from '@mui/material/Grid2'; // Usando Grid2
+import axios from 'axios';
 
-const CadastroFerramenta = ({ onClose, setFerramentas }) => {
-  const [formData, setFormData] = useState({
-    nome: "",
-    valu: "",
-  });
-  const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  
-  const formatCurrency = (value) => {
-    const numericValue = value.replace(/\D/g,'');
-    const formattedValue = (Number(numericValue) / 100).toFixed(2).replace('.', ',');
-    return formattedValue;
-  };
-  
+const AlteracaoFerramenta = ({ ferramenta, setFerramentas, onClose }) => {
+    const [formData, setFormData] = useState({
+        nome: "",
+        valu: "",
+    });
+    const [errors, setErrors] = useState({});
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const formatCurrency = (value) => {
+        const numericValue = value.replace(/\D/g,'');
+        const formattedValue = (Number(numericValue) / 100).toFixed(2).replace('.', ',');
+        return formattedValue;
+      };
+      
+  useEffect(() => {
+    if (ferramenta) {
+      setFormData({ nome: ferramenta.nome, valu: ferramenta.valu });
+    }
+  }, [ferramenta]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "valor") {
-      setFormData({ ...formData, valu: formatCurrency(value) });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+        setFormData({ ...formData, valu: formatCurrency(value) });
+      } else {
+        setFormData({ ...formData, [name]: value });
+      }
   };
 
   const validateFields = () => {
@@ -39,15 +45,18 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
     e.preventDefault();
     if (validateFields()) {
       try {
-        const response = await axios.post("/cadastro-ferramenta", formData);
+        await axios.put(`/ferramentas/${ferramenta.fid}`, formData);
         setSuccessMessage("Ferramenta cadastrada com sucesso!");
-        setFerramentas((prev) => [...prev, response.data]);
-        setFormData({ nome: "", valu: "" });
+        setFerramentas((prev) =>
+        prev.map((f) =>
+            f.fid === ferramenta.fid ? { ...f, nome: formData.nome, valu: formData.valu } : f
+          )
+        );
         setErrors({});
-        onClose(); // Fechar o diálogo ao sucesso
+        onClose();
       } catch (err) {
-        console.error(err);
-        setErrorMessage("Erro ao cadastrar ferramenta. Tente novamente.");
+        console.error('Erro ao atualizar ferramenta:', err);
+        setErrorMessage("Erro ao atualizar ferramenta. Tente novamente.");
       }
     }
   };
@@ -55,11 +64,11 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
       <Typography 
-        sx={{ textAlign: 'center', marginBottom: 2 }}
+        sx={{ textAlign: 'center', marginBottom: 2}}
         variant="h5" 
         component="h1"
       >
-        Cadastrar nova Ferramenta
+        Editar Ferramenta
       </Typography>
       
       <Grid container spacing={2}>
@@ -78,7 +87,7 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
         <Grid item xs={12} sm={6}>
           <TextField
             name="valor"
-            label="Valor Unitário"
+            label="Preço Unitário"
             value={formData.valu}
             onChange={handleChange}
             error={!!errors.valu}
@@ -97,7 +106,7 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
             color="primary" 
             fullWidth
           >
-            Cadastrar
+            Salvar
           </Button>
         </Grid>
         <Grid item xs={6}>
@@ -111,7 +120,6 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
           </Button>
         </Grid>
       </Grid>
-
       {successMessage && (
         <Alert severity="success" sx={{ mt: 2 }}>
           {successMessage}
@@ -126,4 +134,4 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
   );
 };
 
-export default CadastroFerramenta;
+export default AlteracaoFerramenta;

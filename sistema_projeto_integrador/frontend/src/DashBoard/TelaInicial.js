@@ -107,7 +107,7 @@ export default function DashboardLayoutBasic(props) {
       navigation={NAVIGATION}
       //titulo e logo do topbar
       branding={{
-        logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
+        logo: <img src="../gerenciamento-de-projetos.png" alt="PlanoMEI logo" />,
         title: 'PlanoMEI',
       }}
       theme={demoTheme}

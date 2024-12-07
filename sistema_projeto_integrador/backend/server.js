@@ -175,14 +175,54 @@ app.post('/cadastro-ferramenta', async (req, res) => {
     }
 });
 
-app.patch('/ferramentas/:id', async (req, res) => {
-    const { id } = req.params; 
+app.patch('/ferramentas/:fid', async (req, res) => {
+    const { fid } = req.params; 
     const { obtido } = req.body;
     try { 
-        await db.none('UPDATE ferramenta SET obtido = $1 WHERE fid = $2', [obtido, id]);
+        await db.none('UPDATE ferramenta SET obtido = $1 WHERE fid = $2', [obtido, fid]);
         res.status(200).send('Status da ferramenta atualizado com sucesso.');
     } catch (error) {
         res.status(500).send('Erro ao atualizar status da ferramenta.'); 
+    }
+});
+
+// Deletar ferramenta
+
+app.delete('/ferramentas/:fid', async (req, res) => {
+    const { fid } = req.params;
+    try {
+      await db.none('DELETE FROM ferramenta WHERE fid = $1', [fid]);
+      res.status(204).send(); // Sucesso sem corpo de resposta
+    } catch (error) {
+      console.error('Erro ao excluir ferramenta:', error);
+      res.status(500).send('Erro ao excluir ferramenta.');
+    }
+  });
+  
+
+// Rota para atualizar uma ferramenta pelo ID
+app.put('/ferramentas/:fid', async (req, res) => {
+    const { fid } = req.params; // Pega o ID da ferramenta a ser alterada
+    const { nome, valu } = req.body; // Dados enviados pelo frontend
+
+    try {
+        // Validação de entrada
+        if (!nome || !valu) {
+            return res.status(400).send('Nome e valor unitário são obrigatórios.');
+        }
+
+        // Atualiza a ferramenta no banco de dados
+        const result = await db.none(
+            `UPDATE ferramenta 
+            SET nome = $1, valu = $2 
+            WHERE fid = $3`,
+            [nome, valu, fid] // Formata o valor monetário
+        );
+
+        res.status(200).send('Ferramenta atualizada com sucesso.');
+    } catch (error) {
+        console.error('Erro ao atualizar ferramenta:', error);
+        res.status(500).send('Erro ao atualizar ferramenta. Tente novamente.');
     }
 });
 

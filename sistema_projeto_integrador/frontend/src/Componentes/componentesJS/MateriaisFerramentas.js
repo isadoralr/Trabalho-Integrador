@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Paper, IconButton } from '@mui/material';
+import { Button, Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Paper, IconButton, Dialog, 
+DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { Edit, Delete, ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import axios from 'axios';
-import CadastroFerramenta from './CadastroFerramenta'; // Importe o componente de cadastro
+import CadastroFerramenta from './CadastroFerramenta'; 
+import AlteracaoFerramenta from './AlteracaoFerramenta'; 
 
 const MateriaisFerramentas = () => {
   const [showCadastro, setShowCadastro] = useState(false);
   const [ferramentas, setFerramentas] = useState([]);
   const [orderBy, setOrderBy] = useState('nome');
   const [order, setOrder] = useState('asc');
+  const [selectedFerramenta, setSelectedFerramenta] = useState(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   useEffect(() => {
-    // Fetch the list of tools from the backend
     const fetchFerramentas = async () => {
       try {
         const response = await axios.get('/ferramentas');
@@ -20,7 +24,6 @@ const MateriaisFerramentas = () => {
         console.error('Error fetching tools:', error);
       }
     };
-
     fetchFerramentas();
   }, []);
 
@@ -28,10 +31,10 @@ const MateriaisFerramentas = () => {
     setShowCadastro(!showCadastro);
   };
 
-  const handleCheckboxChange = async (id, obtido) => {
+  const handleCheckboxChange = async (fid, obtido) => {
     try {
-      await axios.patch(`/ferramentas/${id}`, { obtido: !obtido });
-      setFerramentas(ferramentas.map(ferramenta => ferramenta.fid === id ? { ...ferramenta, obtido: !obtido } : ferramenta));
+      await axios.patch(`/ferramentas/${fid}`, { obtido: !obtido });
+      setFerramentas(ferramentas.map(ferramenta => ferramenta.fid === fid ? { ...ferramenta, obtido: !obtido } : ferramenta));
     } catch (error) {
       console.error('Error updating tool status:', error);
     }
@@ -51,8 +54,37 @@ const MateriaisFerramentas = () => {
     }
   });
 
+  const handleEdit = (ferramenta) => {
+    setSelectedFerramenta(ferramenta);
+    setOpenEditDialog(true);
+  };
+
+  const handleDelete = (ferramenta) => {
+    setSelectedFerramenta(ferramenta);
+    setOpenDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedFerramenta) {
+      console.error('Nenhuma ferramenta selecionada para exclusão.');
+      return;
+    }
+  
+    try {
+      await axios.delete(`/ferramentas/${selectedFerramenta.fid}`);
+      setFerramentas((prev) =>
+        prev.filter((ferramenta) => ferramenta.fid !== selectedFerramenta.fid)
+      );
+      setOpenDeleteDialog(false);
+      setSelectedFerramenta(null);
+    } catch (error) {
+      console.error('Erro ao excluir ferramenta:', error);
+    }
+  };
+  
+
   return (
-    <Box sx={{ mt: 2, textAlign: 'center'}}>
+    <Box sx={{ mt: 2, textAlign: 'left'}}>
         <Typography variant="h5" component="h2" gutterBottom> 
         Ferramentas
         </Typography>
@@ -83,12 +115,12 @@ const MateriaisFerramentas = () => {
                   />
                 </TableCell>
                 <TableCell>
-                  <IconButton>
+                  <IconButton onClick={() => handleEdit(ferramenta)}>
                     <Edit />
                   </IconButton>
                 </TableCell>
                 <TableCell>
-                  <IconButton>
+                  <IconButton onClick={() => handleDelete(ferramenta)}>
                     <Delete />
                   </IconButton>
                 </TableCell>
@@ -100,11 +132,47 @@ const MateriaisFerramentas = () => {
       <Button variant="contained" color="primary" onClick={handleToggleCadastro}>
         {showCadastro ? 'Fechar Cadastro de Ferramenta' : 'Cadastrar nova ferramenta'}
       </Button>
-      {showCadastro && (
-        <Box sx={{ mt: 2 }}>
-          <CadastroFerramenta />
-        </Box>
-      )}
+
+      {/* Diálogo para cadastro de nova ferramenta */}
+      <Dialog open={showCadastro} onClose={() => setShowCadastro(false)}>
+        <DialogContent>
+          <CadastroFerramenta 
+            setFerramentas={setFerramentas} 
+            onClose={() => setShowCadastro(false)} 
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para edição de ferramenta */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+        <DialogContent>
+          <AlteracaoFerramenta 
+            ferramenta={selectedFerramenta} 
+            setFerramentas={setFerramentas} 
+            onClose={() => setOpenEditDialog(false)} 
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para confirmação de exclusão */}
+        <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                {selectedFerramenta
+                    ? `Tem certeza de que deseja excluir a ferramenta "${selectedFerramenta.nome}"?`
+                    : 'Nenhuma ferramenta selecionada.'}
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
+                Cancelar
+                </Button>
+                <Button onClick={confirmDelete} color="secondary">
+                Excluir
+                </Button>
+            </DialogActions>
+        </Dialog>
     </Box>
   );
 };
