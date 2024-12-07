@@ -85,12 +85,14 @@ const Clientes = () => {
               <TableCell onClick={() => handleSort('nome')} style={{ width: '50%' }}>
                 Nome {orderBy === 'nome' ? (order === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />) : null}
               </TableCell>
-              <TableCell onClick={() => handleSort('tel')} style={{ width: '15%' }}>
+              <TableCell onClick={() => handleSort('tel')} style={{ width: '10%' }}>
                 Telefone {orderBy === 'tel' ? (order === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />) : null}
               </TableCell>
-              <TableCell onClick={() => handleSort('email')} style={{ width: '35%' }}>
+              <TableCell onClick={() => handleSort('email')} style={{ width: '30%' }}>
                 Email {orderBy === 'email' ? (order === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />) : null}
               </TableCell>
+              <TableCell style={{ width: '5%' }}>Editar</TableCell>
+              <TableCell style={{ width: '5%' }}>Excluir</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
