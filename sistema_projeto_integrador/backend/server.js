@@ -144,13 +144,53 @@ app.post('/cadastro-cliente', async (req, res) => {
 app.get("/clientes", async (req, res) => {
     try {
       // Consulta no banco de dados para pegar todos os clientes
-      const clientes = await db.any("SELECT cid, nome, tel FROM cliente");
+      const clientes = await db.any("SELECT cid, nome, tel, email FROM cliente");
       res.json(clientes); // Retorna a lista de clientes em formato JSON
     } catch (err) {
       console.error("Erro ao buscar clientes:", err);
       res.status(500).send("Erro ao buscar clientes.");
     }
 });
+
+// Deletar cliente
+app.delete('/clientes/:cid', async (req, res) => {
+    const { cid } = req.params;
+    try {
+      await db.none('DELETE FROM cliente WHERE cid = $1', [cid]);
+      res.status(204).send(); // Sucesso sem corpo de resposta
+    } catch (error) {
+      console.error('Erro ao excluir cliente:', error);
+      res.status(500).send('Erro ao excluir cliente.');
+    }
+  });
+  
+
+// Rota para atualizar um cliente pelo ID
+app.put('/clientes/:cid', async (req, res) => {
+    const { cid } = req.params; // Pega o ID do cliente a ser alterada
+    const { nome, tel, email } = req.body; // Dados enviados pelo frontend
+
+    try {
+        // Validação de entrada
+        if (!nome || !tel) {
+            return res.status(400).send('Nome e telefone são obrigatórios.');
+        }
+
+        // Atualiza o cliente no banco de dados
+        const result = await db.none(
+            `UPDATE cliente 
+            SET nome = $1, tel = $2, email = $3
+            WHERE cid = $4`,
+            [nome, tel, email, cid] 
+        );
+
+        res.status(200).send('Cliente atualizado com sucesso.');
+    } catch (error) {
+        console.error('Erro ao atualizar cliente:', error);
+        res.status(500).send('Erro ao atualizar cliente. Tente novamente.');
+    }
+});
+
 
 app.get("/ferramentas", async (req, res) => {
     try {
@@ -216,7 +256,7 @@ app.put('/ferramentas/:fid', async (req, res) => {
             `UPDATE ferramenta 
             SET nome = $1, valu = $2 
             WHERE fid = $3`,
-            [nome, valu, fid] // Formata o valor monetário
+            [nome, valu, fid] 
         );
 
         res.status(200).send('Ferramenta atualizada com sucesso.');

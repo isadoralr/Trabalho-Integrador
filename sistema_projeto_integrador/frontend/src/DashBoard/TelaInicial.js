@@ -44,7 +44,7 @@ const NAVIGATION = [
     icon: <ContentPasteSearchIcon />,
   },
   {
-    segment: './TelaInicial/CadastroCliente',
+    segment: './TelaInicial/Clientes',
     title: 'Clientes',
     icon: <PeopleAltIcon />,
   },

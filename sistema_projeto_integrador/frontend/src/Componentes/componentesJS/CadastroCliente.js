@@ -28,8 +28,10 @@ const CadastroCliente = () => {
 
   // Validação do email
   const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    if (email){
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
   };
 
   const handleChange = (e) => {
@@ -47,7 +49,8 @@ const CadastroCliente = () => {
     const newErrors = {};
     if (!formData.nome.trim()) newErrors.nome = "O nome do cliente é obrigatório.";
     if (!formData.telefone.trim()) newErrors.telefone = "O telefone é obrigatório.";
-    if (formData.telefone.length > 15) newErrors.telefone = "O telefone deve ter no máximo 14 caracteres.";
+    if (formData.telefone.length > 15) newErrors.telefone = "O telefone deve ter no máximo 15 caracteres.";
+    if (formData.telefone.length < 15) newErrors.telefone = "O telefone deve ter no mínimo 15 caracteres.";
     if (formData.email && !isValidEmail(formData.email)) newErrors.email = "Formato de email inválido.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -71,10 +74,8 @@ const CadastroCliente = () => {
   return (
     <Box>
       <Box
-       borderRadius="30px" border="2px solid gray" // define a borda
        sx={{
          '& .MuiTextField-root': { m: 1, width: '100%' },
-         maxWidth: '1000px',
          margin: '0 auto',
        }}
        component="form"
@@ -128,7 +129,7 @@ const CadastroCliente = () => {
         onChange={handleChange}
         error={!!errors.email}
         helperText={errors.email}
-        // fullWidth
+        fullWidth
       />        
       </Grid>
       <Grid container spacing={1} sx={{ mt: 2 }} 
