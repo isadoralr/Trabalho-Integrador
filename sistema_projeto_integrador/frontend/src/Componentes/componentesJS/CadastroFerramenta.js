@@ -90,26 +90,28 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
       </Grid>
 
       <Grid container spacing={2} sx={{ mt: 2 }}>
-        <Grid item xs={6}>
+        {/* <Grid item xs={12}> */}
           <Button 
+            size="medium"
             type="submit" 
             variant="contained" 
             color="primary" 
-            fullWidth
+            // fullWidth
           >
             Cadastrar
           </Button>
-        </Grid>
-        <Grid item xs={6}>
+        {/* </Grid> */}
+        {/* <Grid  item xs={12}> */}
           <Button 
+            size="medium"
             onClick={onClose} 
             variant="outlined" 
             color="secondary" 
-            fullWidth
+            // fullWidth
           >
             Cancelar
           </Button>
-        </Grid>
+        {/* </Grid> */}
       </Grid>
 
       {successMessage && (
