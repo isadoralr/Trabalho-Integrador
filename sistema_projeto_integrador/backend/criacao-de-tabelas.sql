@@ -1,8 +1,4 @@
-﻿CREATE DATABASE planomei;
-
-\c planomei;
-
-CREATE TABLE IF NOT EXISTS cliente (
+﻿CREATE TABLE IF NOT EXISTS cliente (
     cid serial NOT NULL,
     nome varchar(30) NOT NULL,
     tel varchar(15) NOT NULL,
@@ -77,10 +73,20 @@ CREATE TABLE IF NOT EXISTS turno (
     CONSTRAINT fk_turno_data FOREIGN KEY(data, sid) REFERENCES dia(data, sid)
 );
 
-CREATE TABLE IF NOT EXISTS listafer (
+CREATE TABLE listafer (
     fid int NOT NULL,
     sid int NOT NULL,
     CONSTRAINT pk_listafer PRIMARY KEY (fid, sid),
     CONSTRAINT fk_listafer_fid FOREIGN KEY (fid) REFERENCES ferramenta (fid),
     CONSTRAINT fk_listafer_sid FOREIGN KEY (sid) REFERENCES servico (sid)
+);
+
+CREATE TABLE listamat (
+    mid int NOT NULL,
+    sid int NOT NULL,
+    qtd int NOT NULL,
+    obtido boolean NOT NULL,
+    CONSTRAINT pk_listamat PRIMARY KEY (mid, sid),
+    CONSTRAINT fk_listamat_mid FOREIGN KEY (mid) REFERENCES material (mid),
+    CONSTRAINT fk_listamat_sid FOREIGN KEY (sid) REFERENCES servico (sid)
 );

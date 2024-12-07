@@ -3,13 +3,15 @@ import { TextField, MenuItem, Box, Typography } from '@mui/material';
 
 const InputManager = ({ onChange }) => {
   const [selectedValue, setSelectedValue] = useState(1); // Valor selecionado
-  const [inputs, setInputs] = useState([]); // Valores dos inputs
+  const [inputs, setInputs] = useState(
+    Array(1).fill({ entrada: '', saida: '' }) // Inicializa os campos para 1 turno
+  );
 
   const handleValueChange = (event) => {
     const value = Number(event.target.value);
     setSelectedValue(value);
     setInputs(
-      Array(value).fill({ entrada: '', saida: '' }) // Inicializa cada item com campos de entrada e saída vazios
+      Array(value).fill({ entrada: '', saida: '' }) // Atualiza os campos com base no novo valor
     );
   };
 
@@ -20,9 +22,19 @@ const InputManager = ({ onChange }) => {
         ...updatedInputs[index],
         [field]: value, // Atualiza somente o campo correspondente (entrada ou saída)
       };
+  
+      // Limpa erros de turnos inválidos caso os valores sejam preenchidos
+      if (onChange) {
+        const hasErrors = updatedInputs.some(
+          (turno) => !turno.entrada || !turno.saida
+        );
+        onChange(updatedInputs, hasErrors ? 'Todos os turnos devem ter horários válidos.' : null);
+      }
+  
       return updatedInputs;
     });
   };
+  
 
   // Notifica o formulário pai sempre que os valores mudam
   useEffect(() => {
@@ -32,12 +44,12 @@ const InputManager = ({ onChange }) => {
   }, [inputs, onChange]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%',marginBottom:'10px' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%', marginBottom: '10px' }}>
       {/* Dropdown de seleção */}
       <TextField
         required
         select
-        label="Escolha um valor"
+        label="Escolha a quantidade de turnos"
         value={selectedValue}
         onChange={handleValueChange}
       >
@@ -50,8 +62,8 @@ const InputManager = ({ onChange }) => {
 
       {/* Renderização dinâmica dos pares de entrada e saída */}
       {inputs.map((item, index) => (
-        <Box key={index} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Typography variant="subtitle1">{`Conjunto ${index + 1}`}</Typography>
+        <Box key={index} sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+          <Typography variant="subtitle1">{`Turno ${index + 1}`}</Typography>
           <TextField
             label={`Entrada ${index + 1}`}
             type="time"
