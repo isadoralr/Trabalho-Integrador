@@ -5,7 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import InputManager from '../Funcoes/MultiInput';
 import Grid from '@mui/material/Grid2'; // Usando Grid2
 import Typography from '@mui/material/Typography';
-import { Autocomplete, TextField, Box, Button, Alert, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Autocomplete, TextField, Box, Button, FormGroup, FormControlLabel, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import axios from 'axios';
 
 const CurrencyInput = () => {
@@ -26,11 +26,19 @@ const CurrencyInput = () => {
   const [nomeGasto, setNomeGasto] = useState(''); // Nome do gasto
   const [gastoDiario, setGastoDiario] = useState(''); // Gasto diário
   const [errors, setErrors] = useState({});
-
   const [custosAdicionais, setCustosAdicionais] = useState([]); // Tabela de custos adicionais
+  const [selectedDays, setSelectedDays] = useState([]); // Dias selecionados
 
+  const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
-
+  const handleDayChange = (event) => {
+    const day = event.target.name;
+    setSelectedDays((prevSelectedDays) =>
+      prevSelectedDays.includes(day)
+        ? prevSelectedDays.filter((d) => d !== day)
+        : [...prevSelectedDays, day]
+    );
+  };
 
 
   const formatCurrency = (value) => {
@@ -417,10 +425,32 @@ const CurrencyInput = () => {
           </Table>
         </Grid>
 
-
         <Grid container spacing={5} sx={{ mt: 2, marginBottom: '10px' }}>
           <Grid xs={12} sm={6} sx={{ marginLeft: '5%' }}>
+          <Typography variant="h6" gutterBottom>
+              Selecione a quantidade de turnos e os horários de cada um
+            </Typography>
             <InputManager onChange={handleDynamicInputChange} />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6" gutterBottom>
+              Selecione os dias da semana
+            </Typography>
+            <FormGroup>
+              {daysOfWeek.map((day) => (
+                <FormControlLabel
+                  key={day}
+                  control={
+                    <Checkbox
+                      checked={selectedDays.includes(day)}
+                      onChange={handleDayChange}
+                      name={day}
+                    />
+                  }
+                  label={day}
+                />
+              ))}
+            </FormGroup>
           </Grid>
           <Grid xs={12} sm={6} sx={{ margin: '5%' }}>
             <Button variant="contained" type="submit">Cadastrar Orçamento</Button>
