@@ -519,7 +519,6 @@ app.post("/calcular-custo-total-custos-adicionais", (req, res) => {
     custosAdicionais.forEach(custo => {
         totalCost += custo.valor;
     });
-    console.log("Custo total dos custos adicionais calculado:", totalCost);
     resultadoTotalCustosAdicionais = { totalCost };
 
     res.send(resultadoTotalCustosAdicionais);
@@ -584,19 +583,15 @@ app.post("/cadastro-orcamento", async (req, res) => {
         }
 
         // Inserir turnos na tabela turno
-        for (const turno of formData) {
+        for (let num = 1; num <= formData.length; num++) {
+            const turno = formData[num - 1];
             const [horaInicio, minutoInicio] = turno.entrada.split(":").map(Number);
             const [horaFim, minutoFim] = turno.saida.split(":").map(Number);
-            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-                const diaSemana = d.getDay();
-                if (selectedDays.includes(diaSemana)) {
-                    await db.none(
-                        `INSERT INTO turno (num, sid, data, hre, hrs)
-                        VALUES ($1, $2, $3, $4, $5)`,// esse 1?? arrumar!
-                        [1, sid, d.toISOString().split('T')[0], `${horaInicio}:${minutoInicio}`, `${horaFim}:${minutoFim}`]
-                    );
-                }
-            }
+            await db.none(
+                `INSERT INTO turno (num, sid, hre, hrs)
+                VALUES ($1, $2, $3, $4)`,
+                [num, sid, `${horaInicio}:${minutoInicio}`, `${horaFim}:${minutoFim}`]
+            );
         }
 
         res.status(201).send('Orçamento cadastrado com sucesso.');

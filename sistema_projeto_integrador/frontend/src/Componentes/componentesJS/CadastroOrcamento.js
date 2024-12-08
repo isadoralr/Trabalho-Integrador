@@ -77,22 +77,29 @@ const CurrencyInput = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateFields()) {
-      console.log({
-        nomeorcamento,
-        descricaoOrcamento,
-        enderecoOrcamento,
-        value,
-        startDate: startDate?.format('DD-MM-YYYY'),
-        endDate: endDate?.format('DD-MM-YYYY'),
-        cliente: selectedCliente,
-        formData,
-        materiaisTabela,
-      });
+        try {
+            const response = await axios.post('/cadastro-orcamento', {
+                nomeorcamento,
+                descricaoOrcamento,
+                enderecoOrcamento,
+                value,
+                startDate: startDate?.toISOString(),
+                endDate: endDate?.toISOString(),
+                cliente: selectedCliente,
+                formData,
+                materiaisTabela,
+                custosAdicionais,
+                selectedDays: selectedDays.map(day => daysOfWeek.indexOf(day))
+            });
+            console.log('Orçamento cadastrado com sucesso:', response.data);
+        } catch (error) {
+            console.error('Erro ao cadastrar orçamento:', error);
+        }
     }
-  };
+};
 
   const handleDynamicInputChange = (values) => {
     setFormData(values);

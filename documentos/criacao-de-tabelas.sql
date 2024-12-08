@@ -67,11 +67,10 @@ CREATE TABLE IF NOT EXISTS dia (
 CREATE TABLE IF NOT EXISTS turno (
     num int NOT NULL,
     sid int NOT NULL,
-    data date NOT NULL,
     hre time NOT NULL,
     hrs time NOT NULL,
-    CONSTRAINT pk_turno PRIMARY KEY (num, sid, data),
-    CONSTRAINT fk_turno_data FOREIGN KEY(data, sid) REFERENCES dia(data, sid)
+    CONSTRAINT pk_turno PRIMARY KEY (num, sid),
+    CONSTRAINT fk_turno_data FOREIGN KEY(sid) REFERENCES servico(sid)
 );
 
 CREATE TABLE listafer (
