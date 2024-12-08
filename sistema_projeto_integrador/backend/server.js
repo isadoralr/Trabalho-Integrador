@@ -655,3 +655,43 @@ app.get("/orcamentos", async (req, res) => {
         res.status(500).send("Erro ao buscar orçamentos.");
     }
 });
+
+app.get("/agenda", async (req, res) => {
+    const { data } = req.query; 
+
+    if (!data) {
+        return res.status(400).send({ error: "A data é obrigatória." });
+    }
+
+    try {
+        const agenda = await db.any(
+            `SELECT 
+                d.data AS dia,
+                s.sid AS servico_id,
+                s.nome AS servico_nome,
+                c.nome AS cliente_nome,
+                t.num AS turno_num,
+                t.hre AS hora_inicio,
+                t.hrs AS hora_fim
+            FROM 
+                dia d
+            JOIN 
+                servico s ON d.sid = s.sid
+            JOIN 
+                cliente c ON s.cid = c.cid
+            JOIN 
+                turno t ON s.sid = t.sid
+            WHERE 
+                d.ntrab = FALSE
+                AND d.data = $1
+                AND s.stts = 'and' OR s.stts = 'fin'
+            ORDER BY 
+                d.data, t.hre;`,
+            [data]
+        );
+        res.json(agenda);
+    } catch (error) {
+        console.error("Erro ao buscar a agenda:", error);
+        res.status(500).send("Erro ao buscar a agenda.");
+    }
+});
