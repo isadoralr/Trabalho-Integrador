@@ -374,7 +374,7 @@ const CurrencyInput = () => {
               helperText={errors.value}
             />
           </Grid>
-          <Grid xs={12} sm={12} sx={{ width: '82%' }}>
+          <Grid xs={12} sm={12} sx={{ width: '81%' }}>
             <TextField
               label="Descrição do orçamento"
               placeholder="Digite uma descrição"

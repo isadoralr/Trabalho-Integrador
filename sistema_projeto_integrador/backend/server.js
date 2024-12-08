@@ -524,3 +524,84 @@ app.post("/calcular-custo-total-custos-adicionais", (req, res) => {
 
     res.send(resultadoTotalCustosAdicionais);
 });
+
+app.post("/cadastro-orcamento", async (req, res) => {
+    const {
+        nomeorcamento,
+        descricaoOrcamento,
+        enderecoOrcamento,
+        value,
+        startDate,
+        endDate,
+        cliente,
+        formData,
+        materiaisTabela,
+        custosAdicionais,
+        selectedDays
+    } = req.body;
+
+    const laborCostPerHour = parseFloat(value.replace(',', '.'));
+
+    try {
+        // Inserir serviço na tabela servico
+        const result = await db.one(
+            `INSERT INTO servico (cid,maoh, stts, endr, dti, dtc, descr,nome)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING sid`,
+            [cliente.cid, laborCostPerHour, 'pen', enderecoOrcamento, startDate, endDate, descricaoOrcamento, nomeorcamento]
+        );
+        const sid = result.sid;
+
+        // Inserir gastos adicionais na tabela adicional
+        for (const gasto of custosAdicionais) {
+            await db.none(
+                `INSERT INTO adicional (sid, nome, vald)
+                VALUES ($1, $2, $3)`,
+                [sid, gasto.nome, gasto.valor]
+            );
+        }
+
+        // Inserir materiais na tabela listamat
+        for (const material of materiaisTabela) {
+            await db.none(
+                `INSERT INTO listamat (mid, sid, qtd, obtido)
+                VALUES ($1, $2, $3, $4)`,
+                [material.mid, sid, material.quantidade, false]
+            );
+        }
+
+        // Inserir dias na tabela dia
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            const diaSemana = d.getDay();
+            if (selectedDays.includes(diaSemana)) {
+                await db.none(
+                    `INSERT INTO dia (data, sid, ntrab)
+                    VALUES ($1, $2, $3)`,
+                    [d.toISOString().split('T')[0], sid, false]
+                );
+            }
+        }
+
+        // Inserir turnos na tabela turno
+        for (const turno of formData) {
+            const [horaInicio, minutoInicio] = turno.entrada.split(":").map(Number);
+            const [horaFim, minutoFim] = turno.saida.split(":").map(Number);
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const diaSemana = d.getDay();
+                if (selectedDays.includes(diaSemana)) {
+                    await db.none(
+                        `INSERT INTO turno (num, sid, data, hre, hrs)
+                        VALUES ($1, $2, $3, $4, $5)`,// esse 1?? arrumar!
+                        [1, sid, d.toISOString().split('T')[0], `${horaInicio}:${minutoInicio}`, `${horaFim}:${minutoFim}`]
+                    );
+                }
+            }
+        }
+
+        res.status(201).send('Orçamento cadastrado com sucesso.');
+    } catch (error) {
+        console.error('Erro ao cadastrar orçamento:', error.message);
+        res.status(500).send(`Erro ao cadastrar orçamento: ${error.message}`);
+    }
+});

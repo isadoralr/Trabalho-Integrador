@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS usuario (
 CREATE TABLE IF NOT EXISTS servico (
     sid serial NOT NULL,
     cid int NOT NULL,
+    nome varchar(30) NOT NULL,
     maoh money NOT NULL,
     stts varchar(3) NOT NULL,
     endr varchar(50) NOT NULL,

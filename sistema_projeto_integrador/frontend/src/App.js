@@ -44,7 +44,7 @@ function App() {
             <Routes>
                 <Route
                     path="/"
-                    element={isLoggedIn ? <Navigate to="/TelaInicial" /> : <Login setIsLoggedIn={setIsLoggedIn} />}
+                    element={isLoggedIn ? <Navigate to="/TelaInicial/Painel" /> : <Login setIsLoggedIn={setIsLoggedIn} />}
                 />
                 <Route
                     path="/TelaInicial"
