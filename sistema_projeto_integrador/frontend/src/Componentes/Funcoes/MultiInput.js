@@ -44,7 +44,7 @@ const InputManager = ({ onChange }) => {
   }, [inputs, onChange]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%', marginBottom: '10px' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '80%', marginBottom: '10px' }}>
       {/* Dropdown de seleção */}
       <TextField
         required
