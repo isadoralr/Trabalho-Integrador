@@ -293,7 +293,9 @@ const CurrencyInput = () => {
           </Grid>
         </Grid>
         <Grid xs={12} sm={6} sx={{ mt: '5%', ml: '5%' }}>
-          Lista de Materiais
+        <Typography variant="h6" gutterBottom>
+        Lista de Materiais
+        </Typography>
         </Grid>
         <Grid container spacing={2}>
           <Grid sx={{ marginLeft: '5%' }}>
@@ -364,8 +366,10 @@ const CurrencyInput = () => {
             </TableBody>
           </Table>
         </Grid>
-        <Grid xs={12} sm={6} sx={{ mt: '5%', ml: '5%' }}>
-          Gastos Adicionais
+        <Grid xs={12} sm={6} sx={{ mt: '3%', ml: '5%' }}>
+        <Typography variant="h6" gutterBottom>
+        Gastos Adicionais
+        </Typography>
         </Grid>
         <Grid container spacing={2} sx={{ marginBottom: '2px' }}>
           <Grid xs={12} sm={6} sx={{ marginLeft: '5%' }}>
@@ -425,7 +429,7 @@ const CurrencyInput = () => {
           </Table>
         </Grid>
 
-        <Grid container spacing={5} sx={{ mt: 2, marginBottom: '10px' }}>
+        <Grid container spacing={5} sx={{ mt:'3%', marginBottom: '10px' }}>
           <Grid xs={12} sm={6} sx={{ marginLeft: '5%' }}>
           <Typography variant="h6" gutterBottom>
               Selecione a quantidade de turnos e os horários de cada um
