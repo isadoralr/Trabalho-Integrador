@@ -415,6 +415,9 @@ app.post("/calcular-total-mao-de-obra", (req, res) => {
     }
 
     try {
+        // Resetando a variável
+        resultadoTotalMaoDeObra = null;
+
         const start = new Date(startDate);
         const end = new Date(endDate);
         const totalHorasDiarias = shifts.reduce((total, turno) => total + calcularHorasTurno(turno), 0);

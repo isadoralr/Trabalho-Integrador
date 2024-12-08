@@ -46,7 +46,7 @@ const AlteracaoFerramenta = ({ ferramenta, setFerramentas, onClose }) => {
     if (validateFields()) {
       try {
         await axios.put(`/ferramentas/${ferramenta.fid}`, formData);
-        setSuccessMessage("Ferramenta cadastrada com sucesso!");
+        setSuccessMessage("Ferramenta atualizada com sucesso!");
         setFerramentas((prev) =>
         prev.map((f) =>
             f.fid === ferramenta.fid ? { ...f, nome: formData.nome, valu: formData.valu } : f

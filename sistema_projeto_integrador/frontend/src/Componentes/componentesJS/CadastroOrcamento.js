@@ -64,9 +64,15 @@ const CurrencyInput = () => {
     if (!value || value === '0,00') newErrors.value = 'O valor da mão de obra é obrigatório.';
     if (!startDate) newErrors.startDate = 'A data inicial é obrigatória.';
     if (!endDate) newErrors.endDate = 'A data final é obrigatória.';
-    if (endDate > startDate) newErrors.endDate = 'A data final deve ser após a data inicial.';
+    if (endDate <= startDate) newErrors.endDate = 'A data final deve ser após a data inicial.';
     if (!selectedCliente) newErrors.cliente = 'Selecione um cliente.';
     if (!enderecoOrcamento) newErrors.endereco = 'Insira o endereço.';
+    if (formData.length === 0 || formData.some(turno => !turno.entrada || !turno.saida)) {
+      newErrors.turnos = 'Todos os turnos devem ter horários válidos.';
+    }
+    if (selectedDays.length === 0) {
+      newErrors.dias = 'Selecione pelo menos um dia da semana.';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -169,33 +175,41 @@ const CurrencyInput = () => {
     }
   };
 
-  useEffect(() => {
-    const calcularTotais = async () => {
-      try {
-        const maoDeObra = await calcularTotalMaoDeObra();
-        if (maoDeObra) {
-          setTotalMaoDeObra(maoDeObra.maoObraTotal);
-          setTotalHorasTrabalhadas(maoDeObra.totalHorasTrabalhadas);
-        }
-
-        const materiais = await calcularCustoTotalMateriais();
-        if (materiais !== null) {
-          setTotalMateriais(materiais);
-        }
-
-        const custosAdicionais = await calcularCustoTotalCustosAdicionais();
-        if (custosAdicionais) {
-          setTotalCustosAdicionais(custosAdicionais.totalCost);
-        }
-
-        const servico = await obterTotalServico();
-        if (servico) {
-          setTotalServico(servico.totalServico);
-        }
-      } catch (error) {
-        console.error("Erro ao calcular totais:", error);
+  const calcularTotais = async () => {
+    try {
+      const maoDeObra = await calcularTotalMaoDeObra();
+      if (maoDeObra) {
+        setTotalMaoDeObra(maoDeObra.maoObraTotal);
+        setTotalHorasTrabalhadas(maoDeObra.totalHorasTrabalhadas);
+      } else {
+        setTotalMaoDeObra(0);
+        setTotalHorasTrabalhadas(0);
       }
-    };
+  
+      const materiais = await calcularCustoTotalMateriais();
+      if (materiais !== null) {
+        setTotalMateriais(materiais);
+      } else {
+        setTotalMateriais(0);
+      }
+  
+      const custosAdicionais = await calcularCustoTotalCustosAdicionais();
+      if (custosAdicionais) {
+        setTotalCustosAdicionais(custosAdicionais.totalCost);
+      } else {
+        setTotalCustosAdicionais(0);
+      }
+  
+      // Calcular o total do serviço
+      const totalServico = (maoDeObra ? maoDeObra.maoObraTotal : 0) + (materiais !== null ? materiais : 0) + (custosAdicionais ? custosAdicionais.totalCost : 0);
+      setTotalServico(totalServico);
+    } catch (error) {
+      console.error("Erro ao calcular totais:", error);
+    }
+  };
+  
+  // Chame calcularTotais no useEffect para garantir que os valores sejam recalculados quando necessário
+  useEffect(() => {
     calcularTotais();
   }, [startDate, endDate, selectedDays, formData, value, materiaisTabela, custosAdicionais]);
 
@@ -512,7 +526,7 @@ const CurrencyInput = () => {
           </Grid>
         </Grid>
         {/* botao */}
-        <Grid xs={12} sm={6} sx={{ marginLeft: '5%', marginTop: '10px' }}>
+        <Grid xs={12} sm={6} sx={{ marginLeft: '6%', marginTop: '10px' }}>
           <Button
             variant="contained"
             color="primary"
@@ -599,6 +613,8 @@ const CurrencyInput = () => {
               <Typography variant="h6" gutterBottom>
                 Total do Serviço: R$ {totalServico ? totalServico.toFixed(2).replace('.', ',') : '0,00'}
               </Typography>
+              {errors.turnos && <Typography color="error">{errors.turnos}</Typography>}
+              {errors.dias && <Typography color="error">{errors.dias}</Typography>}
             </Grid>
           </Grid>
           <Grid xs={12} sm={6} sx={{ margin: '5%' }}>
