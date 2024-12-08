@@ -74,7 +74,7 @@ const Clientes = () => {
   
 
   return (
-    <Box sx={{ mt: 2, textAlign: 'left'}}>
+    <Box sx={{ mt: 2, textAlign: 'left', padding:'5%'}} >
         <Typography variant="h5" component="h2" gutterBottom> 
         Clientes
         </Typography>
@@ -95,9 +95,20 @@ const Clientes = () => {
               <TableCell style={{ width: '5%' }}>Excluir</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody >
             {sortedClientes.map((cliente, index) => (
-              <TableRow key={cliente.cid} sx={{ '&:nth-of-type(odd)': { backgroundColor: index % 2 === 0 ? '#f5f5f5' : 'inherit' } }}>
+              <TableRow key={cliente.cid}  sx={{
+                '&:nth-of-type(odd)': {
+                  backgroundColor: index % 2 === 0 ? '#f5f5f5' : '#000', // Alterna o fundo
+                  color: index % 2 === 0 ? '#000' : '#fff', // Texto inverso da linha par
+                },
+                '&:nth-of-type(odd) td': { // Garante que as células acompanhem a cor do texto
+                  color: index % 2 === 0 ? '#000' : '#fff',
+                },
+                '&:nth-of-type(odd) .MuiIconButton-root': {
+                  color: index % 2 === 0 ? '#000' : '#fff', // Ícones acompanham a cor do texto
+                },
+              }}>
                 <TableCell>{cliente.nome}</TableCell>
                 <TableCell>{cliente.tel}</TableCell>
                 <TableCell>{cliente.email}</TableCell>
@@ -114,11 +125,14 @@ const Clientes = () => {
               </TableRow>
             ))}
           </TableBody>
+          
         </Table>
       </TableContainer>
-      <Button variant="contained" color="primary" onClick={handleToggleCadastro}>
+      <Box paddingTop="20px">
+      <Button variant="contained" color="primary" onClick={handleToggleCadastro} >
         {showCadastro ? 'Fechar Cadastro de Cliente' : 'Cadastrar novo cliente'}
       </Button>
+      </Box>
 
       {/* Diálogo para cadastro de novo cliente */}
       <Dialog open={showCadastro} onClose={() => setShowCadastro(false)}>

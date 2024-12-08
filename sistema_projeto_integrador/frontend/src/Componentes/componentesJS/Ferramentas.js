@@ -84,7 +84,7 @@ const Ferramentas = () => {
   
 
   return (
-    <Box sx={{ mt: 2, textAlign: 'left'}}>
+    <Box sx={{ mt: 2, textAlign: 'left', padding:'5%'}}>
         <Typography variant="h5" component="h2" gutterBottom> 
         Ferramentas
         </Typography>
@@ -105,7 +105,18 @@ const Ferramentas = () => {
           </TableHead>
           <TableBody>
             {sortedFerramentas.map((ferramenta, index) => (
-              <TableRow key={ferramenta.fid} sx={{ '&:nth-of-type(odd)': { backgroundColor: index % 2 === 0 ? '#f5f5f5' : 'inherit' } }}>
+              <TableRow key={ferramenta.fid} sx={{
+                '&:nth-of-type(odd)': {
+                  backgroundColor: index % 2 === 0 ? '#f5f5f5' : '#000', // Alterna o fundo
+                  color: index % 2 === 0 ? '#000' : '#fff', // Texto inverso da linha par
+                },
+                '&:nth-of-type(odd) td': { // Garante que as células acompanhem a cor do texto
+                  color: index % 2 === 0 ? '#000' : '#fff',
+                },
+                '&:nth-of-type(odd) .MuiIconButton-root': {
+                  color: index % 2 === 0 ? '#000' : '#fff', // Ícones acompanham a cor do texto
+                },
+              }}>
                 <TableCell>{ferramenta.nome}</TableCell>
                 <TableCell>{ferramenta.valu}</TableCell>
                 <TableCell>
@@ -129,9 +140,11 @@ const Ferramentas = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <Box paddingTop="20px">
       <Button variant="contained" color="primary" onClick={handleToggleCadastro}>
         {showCadastro ? 'Fechar Cadastro de Ferramenta' : 'Cadastrar nova ferramenta'}
       </Button>
+      </Box>
 
       {/* Diálogo para cadastro de nova ferramenta */}
       <Dialog open={showCadastro} onClose={() => setShowCadastro(false)}>

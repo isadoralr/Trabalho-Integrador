@@ -75,7 +75,7 @@ const Materiais = () => {
   
 
   return (
-    <Box sx={{ mt: 2, textAlign: 'left'}}>
+    <Box sx={{ mt: 2, textAlign: 'left', padding:'5%'}}>
         <Typography variant="h5" component="h2" gutterBottom> 
         Materiais
         </Typography>
@@ -95,7 +95,18 @@ const Materiais = () => {
           </TableHead>
           <TableBody>
             {sortedMateriais.map((material, index) => (
-              <TableRow key={material.mid} sx={{ '&:nth-of-type(odd)': { backgroundColor: index % 2 === 0 ? '#f5f5f5' : 'inherit' } }}>
+              <TableRow key={material.mid} sx={{
+                '&:nth-of-type(odd)': {
+                  backgroundColor: index % 2 === 0 ? '#f5f5f5' : '#000', // Alterna o fundo
+                  color: index % 2 === 0 ? '#000' : '#fff', // Texto inverso da linha par
+                },
+                '&:nth-of-type(odd) td': { // Garante que as células acompanhem a cor do texto
+                  color: index % 2 === 0 ? '#000' : '#fff',
+                },
+                '&:nth-of-type(odd) .MuiIconButton-root': {
+                  color: index % 2 === 0 ? '#000' : '#fff', // Ícones acompanham a cor do texto
+                },
+              }}>
                 <TableCell>{material.nome}</TableCell>
                 <TableCell>{material.valu}</TableCell>
                 <TableCell>
@@ -113,9 +124,11 @@ const Materiais = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <Box paddingTop="20px">
       <Button variant="contained" color="primary" onClick={handleToggleCadastro}>
         {showCadastro ? 'Fechar Cadastro de Material' : 'Cadastrar novo material'}
       </Button>
+      </Box>
 
       {/* Diálogo para cadastro de novo material */}
       <Dialog open={showCadastro} onClose={() => setShowCadastro(false)}>
