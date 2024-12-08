@@ -452,54 +452,61 @@ app.post("/calcular-custo-total-materiais", (req, res) => {
     res.send(resultadoTotalMateriais);
 });
 
-// Rota POST para calcular o custo total de transporte e armazenar os resultados
-app.post("/calcular-custo-total-transporte", (req, res) => {
-    const { valorTransportePorDia, startDate, endDate, repetition, diasNaoTrabalhados } = req.body;
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const totalDiasTrabalhados = contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados);
-    const custoTotalTransporte = valorTransportePorDia * totalDiasTrabalhados;
-
-    resultadoTotalTransporte = {
-        totalDiasTrabalhados,
-        totalTransporte: custoTotalTransporte
-    };
-
-    res.send(resultadoTotalTransporte);
-});
-
 // Rota GET para calcular o total do serviço (soma dos custos de mão de obra, materiais e custos adicionais)
 app.get("/obter-total-servico", (req, res) => {
+    console.log("Mão de obra:", resultadoTotalMaoDeObra);
+    console.log("Materiais:", resultadoTotalMateriais);
+
     if (resultadoTotalMaoDeObra && resultadoTotalMateriais) {
         const totalServico = resultadoTotalMaoDeObra.maoObraTotal + resultadoTotalMateriais.totalCost;
-
+        console.log("Total do serviço calculado:", totalServico);
         res.send({
             maoDeObra: resultadoTotalMaoDeObra.maoObraTotal,
             materiais: resultadoTotalMateriais.totalCost,
             totalServico
         });
     } else {
+        console.log("Dados ausentes para calcular o total do serviço.");
         res.status(404).send({ error: "Faltam dados para calcular o total do serviço." });
     }
 });
 
+
+
 // Rota POST para calcular o custo total dos materiais e armazenar os resultados
 app.post("/calcular-custo-total-materiais", (req, res) => {
-    const materiais = req.body.materiais;
-    let totalCost = 0;
-
-    materiais.forEach(material => {
-        const itemCost = material.quantidade * parseFloat(material.valu.replace(',', '.'));
-        totalCost += itemCost;
-    });
-
-    resultadoTotalMateriais = {
-        totalCost
-    };
-
-    res.send(resultadoTotalMateriais);
-});
+    try {
+      const materiais = req.body.materiais;
+  
+      if (!Array.isArray(materiais)) {
+        return res.status(400).send({ error: "A lista de materiais é inválida." });
+      }
+  
+      let totalCost = 0;
+  
+      materiais.forEach((material) => {
+        const quantidade = parseInt(material.quantidade, 10);
+        const valorUnitario = parseFloat(material.valu);
+  
+        if (isNaN(quantidade) || quantidade <= 0) {
+          throw new Error(`Quantidade inválida para o material ${material.nome}`);
+        }
+  
+        if (isNaN(valorUnitario) || valorUnitario <= 0) {
+          throw new Error(`Valor unitário inválido para o material ${material.nome}`);
+        }
+  
+        totalCost += quantidade * valorUnitario;
+      });
+  
+      resultadoTotalMateriais = { totalCost };
+      res.send(resultadoTotalMateriais);
+    } catch (error) {
+      console.error("Erro ao calcular custo total dos materiais:", error.message);
+      res.status(400).send({ error: error.message });
+    }
+  });
+  
 
 // Rota POST para calcular o custo total dos custos adicionais e armazenar os resultados
 app.post("/calcular-custo-total-custos-adicionais", (req, res) => {

@@ -92,42 +92,44 @@ const CurrencyInput = () => {
     setFormData(values);
   };
 
+
   const handleAddMaterial = () => {
     if (selectedMaterial && materialQuantidade) {
-      // Verifica se a quantidade é válida
+      // Converte quantidade para número
       const quantidade = parseInt(materialQuantidade, 10);
-      if (quantidade <= 0 || isNaN(quantidade)) {
+      if (isNaN(quantidade) || quantidade <= 0) {
         alert('A quantidade deve ser um número positivo.');
         return;
       }
-  
-      // Verifica se o material já existe na lista de materiaisTabela pelo ID
-      const materialExistente = materiaisTabela.find(material => material.mid === selectedMaterial.mid);
-  
-      if (!materialExistente) {
-        // Calcula o custo total do material
-        const totalMaterial = parseFloat(selectedMaterial.valu.replace(',', '.')) * quantidade;
-  
-        const materialComDetalhes = {
-          ...selectedMaterial,
-          valu: selectedMaterial.valu, // Assegura que o valor unitário está correto
-          quantidade: materialQuantidade,
-          total: totalMaterial, // Adiciona o total calculado
-        };
-  
-        setMateriaisTabela(prevMateriais => [...prevMateriais, materialComDetalhes]);
-  
-        // Limpa os campos após adicionar
-        setSelectedMaterial(null);
-        setMaterialQuantidade('');
-      } else {
-        alert('Este material já foi adicionado!');
+
+      // Remove "R$" e converte valor para número
+      const valorUnitario = parseFloat(selectedMaterial.valu.replace('R$', '').replace(',', '.').trim());
+      if (isNaN(valorUnitario) || valorUnitario <= 0) {
+        alert('O valor do material é inválido.');
+        return;
       }
+
+      // Calcula o custo total
+      const totalMaterial = valorUnitario * quantidade;
+
+      const materialComDetalhes = {
+        ...selectedMaterial,
+        valu: valorUnitario, // Agora está como número
+        quantidade, // Agora está como número
+        total: totalMaterial, // Total calculado
+      };
+
+      setMateriaisTabela((prevMateriais) => [...prevMateriais, materialComDetalhes]);
+
+      // Limpa os campos
+      setSelectedMaterial(null);
+      setMaterialQuantidade('');
     } else {
-      alert('Selecione um material e uma quantidade!');
+      alert('Selecione um material e insira uma quantidade válida!');
     }
   };
-  
+
+
 
   const handleRemoveMaterial = (mid) => {
     // Filtra os materiais para remover o material com o ID correspondente
@@ -153,29 +155,47 @@ const CurrencyInput = () => {
   const handleRemoveGasto = (index) => {
     setCustosAdicionais(prevCustos => prevCustos.filter((_, i) => i !== index));
   };
-  
+
+  const handleGastoDiarioChange = (event) => {
+    const rawValue = event.target.value;
+    const numericValue = rawValue.replace(/[^0-9,]/g, ''); // Permite apenas números e vírgula
+    setGastoDiario(numericValue);
+  };
+
+  const handleMaterialQuantidadeChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setMaterialQuantidade(value);
+    }
+  };
+
   useEffect(() => {
     const calcularTotais = async () => {
-      const maoDeObra = await calcularTotalMaoDeObra();
-      const materiais = await calcularCustoTotalMateriais();
-      const custosAdicionais = await calcularCustoTotalCustosAdicionais();
-      const servico = await obterTotalServico();
-  
-      if (maoDeObra) {
-        setTotalMaoDeObra(maoDeObra.maoObraTotal);
-        setTotalHorasTrabalhadas(maoDeObra.totalHorasTrabalhadas);
-      }
-      if (materiais !== null) {
-        setTotalMateriais(materiais);
-      }
-      if (custosAdicionais) {
-        setTotalCustosAdicionais(custosAdicionais.totalCost);
-      }
-      if (servico) {
-        setTotalServico(servico.totalServico);
+      try {
+        const maoDeObra = await calcularTotalMaoDeObra();
+        if (maoDeObra) {
+          setTotalMaoDeObra(maoDeObra.maoObraTotal);
+          setTotalHorasTrabalhadas(maoDeObra.totalHorasTrabalhadas);
+        }
+
+        const materiais = await calcularCustoTotalMateriais();
+        if (materiais !== null) {
+          setTotalMateriais(materiais);
+        }
+
+        const custosAdicionais = await calcularCustoTotalCustosAdicionais();
+        if (custosAdicionais) {
+          setTotalCustosAdicionais(custosAdicionais.totalCost);
+        }
+
+        const servico = await obterTotalServico();
+        if (servico) {
+          setTotalServico(servico.totalServico);
+        }
+      } catch (error) {
+        console.error("Erro ao calcular totais:", error);
       }
     };
-  
     calcularTotais();
   }, [startDate, endDate, selectedDays, formData, value, materiaisTabela, custosAdicionais]);
 
@@ -229,16 +249,19 @@ const CurrencyInput = () => {
   };
 
   const calcularCustoTotalMateriais = async () => {
+    console.log('Enviando materiaisTabela para a API:', materiaisTabela);
     try {
       const response = await axios.post('/calcular-custo-total-materiais', {
         materiais: materiaisTabela
       });
+      console.log('Resposta da API:', response.data);
       return response.data.totalCost;
     } catch (error) {
       console.error('Erro ao calcular o custo total dos materiais:', error);
       return null;
     }
   };
+
 
   const calcularCustoTotalCustosAdicionais = async () => {
     try {
@@ -255,12 +278,14 @@ const CurrencyInput = () => {
   const obterTotalServico = async () => {
     try {
       const response = await axios.get('/obter-total-servico');
+      console.log('Resposta da API de total do serviço:', response.data);
       return response.data;
     } catch (error) {
       console.error('Erro ao obter o total do serviço:', error);
       return null;
     }
   };
+
 
   return (
     <Box>
@@ -284,7 +309,7 @@ const CurrencyInput = () => {
         >
           Cadastro de Orçamento
         </Typography>
-        
+
         {/* nome do orcamento , descricao do orc, clientes,endereco do servico,mao de obra / h*/}
         <Grid container spacing={2} marginLeft="5%">
           <Grid xs={12} sm={6} sx={{ width: '40%' }}>
@@ -298,7 +323,7 @@ const CurrencyInput = () => {
               helperText={errors.nomeorcamento}
             />
           </Grid>
-          <Grid xs={12} sm={6} sx={{ width: '40%'}}>
+          <Grid xs={12} sm={6} sx={{ width: '40%' }}>
             <Autocomplete
               options={clientes}
               getOptionLabel={(option) => option.nome}
@@ -314,7 +339,7 @@ const CurrencyInput = () => {
               onChange={(_, value) => setSelectedCliente(value)}
             />
           </Grid>
-          <Grid xs={12} sm={6} sx={{ width: '50%'}}>
+          <Grid xs={12} sm={6} sx={{ width: '50%' }}>
             <TextField
               required
               label="Endereço do serviço"
@@ -335,8 +360,8 @@ const CurrencyInput = () => {
               helperText={errors.value}
             />
           </Grid>
-        <Grid xs={12} sm={12} sx={{ width: '82%' }}>
-        <TextField
+          <Grid xs={12} sm={12} sx={{ width: '82%' }}>
+            <TextField
               label="Descrição do orçamento"
               placeholder="Digite uma descrição"
               value={descricaoOrcamento}
@@ -366,7 +391,7 @@ const CurrencyInput = () => {
               />
             </LocalizationProvider>
           </Grid>
-          <Grid xs={12} sm={6} sx={{ width: '40%'}}>
+          <Grid xs={12} sm={6} sx={{ width: '40%' }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 label="Data de Conclusão"
@@ -393,7 +418,7 @@ const CurrencyInput = () => {
         </Grid>
         {/* materais,quantidade */}
         <Grid container spacing={2} marginLeft="5%">
-          <Grid xs={12} sm={6} sx={{ width: '40%'}}>
+          <Grid xs={12} sm={6} sx={{ width: '40%' }}>
             <Autocomplete
               options={materiais}
               getOptionLabel={(option) => option.nome}
@@ -408,11 +433,10 @@ const CurrencyInput = () => {
           </Grid>
           <Grid xs={12} sm={6} sx={{ width: '40%' }}>
             <TextField
-              label="Quantidade"
+              label="Quantidade de Material"
               value={materialQuantidade}
-              onChange={(e) => setMaterialQuantidade(e.target.value)}
-              placeholder="Digite a quantidade"
-              variant="outlined"
+              onChange={handleMaterialQuantidadeChange}
+              placeholder="Digite a quantidade de material"
             />
           </Grid>
         </Grid>
@@ -446,7 +470,7 @@ const CurrencyInput = () => {
                 <TableRow key={material.mid}>
                   <TableCell>{material.mid}</TableCell>
                   <TableCell>{material.nome}</TableCell>
-                  <TableCell>{material.valu}</TableCell>
+                  <TableCell>{material.valu.toFixed(2).replace('.', ',')}</TableCell>
                   <TableCell>{material.quantidade}</TableCell>
                   <TableCell>
                     <Button
@@ -469,8 +493,8 @@ const CurrencyInput = () => {
           </Typography>
         </Grid>
         {/*nome do gasto,gasto diario  */}
-        <Grid container spacing={2} sx={{ marginLeft:"5%"}}>
-          <Grid xs={12} sm={6} sx={{ width:'40%' }}>
+        <Grid container spacing={2} sx={{ marginLeft: "5%" }}>
+          <Grid xs={12} sm={6} sx={{ width: '40%' }}>
             <TextField
               label="Nome do Gasto"
               value={nomeGasto}
@@ -478,17 +502,17 @@ const CurrencyInput = () => {
               placeholder="Digite o nome do gasto"
             />
           </Grid>
-          <Grid xs={12} sm={6} sx={{ width:'40%' }}>
+          <Grid xs={12} sm={6} sx={{ width: '40%' }}>
             <TextField
               label="Gasto Diário"
               value={gastoDiario}
-              onChange={(e) => setGastoDiario(e.target.value)}
+              onChange={handleGastoDiarioChange}
               placeholder="Digite o valor diário"
             />
           </Grid>
         </Grid>
         {/* botao */}
-        <Grid xs={12} sm={6} sx={{ marginLeft: '5%',marginTop:'10px' }}>
+        <Grid xs={12} sm={6} sx={{ marginLeft: '5%', marginTop: '10px' }}>
           <Button
             variant="contained"
             color="primary"
@@ -528,14 +552,14 @@ const CurrencyInput = () => {
           </Table>
         </Grid>
         {/* titulo ,turnos*/}
-        <Grid container spacing={5} sx={{ mt:'3%', marginBottom: '10px' }}>
+        <Grid container spacing={5} sx={{ mt: '3%', marginBottom: '10px' }}>
           <Grid xs={12} sm={6} sx={{ marginLeft: '5%' }}>
             <Typography variant="h6" gutterBottom>
               Selecione a quantidade de turnos e os horários de cada um
             </Typography>
             <InputManager onChange={handleDynamicInputChange} />
           </Grid>
-          <Grid item xs={12} sm={6} sx={{marginLeft:'5%'}}>
+          <Grid item xs={12} sm={6} sx={{ marginLeft: '5%' }}>
             <Typography variant="h6" gutterBottom>
               Selecione os dias da semana
             </Typography>
