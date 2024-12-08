@@ -107,48 +107,48 @@ app.listen(3001, () => {
 });
 
 app.post(
-	"/login",
-	passport.authenticate("local", { session: false }),
-	(req, res) => {
+    "/login",
+    passport.authenticate("local", { session: false }),
+    (req, res) => {
 
-		// Cria o token JWT
-		const token = jwt.sign({ username: req.body.username }, "your-secret-key", {
-			expiresIn: "1h",
-		});
+        // Cria o token JWT
+        const token = jwt.sign({ username: req.body.username }, "your-secret-key", {
+            expiresIn: "1h",
+        });
 
-		res.json({ message: "Login successful", token: token });
-	},
+        res.json({ message: "Login successful", token: token });
+    },
 );
 
 app.post("/logout", function (req, res, next) {
-	req.logout(function (err) {
-		if (err) {
-			return next(err);
-		}
-		res.redirect("/");
-	});
+    req.logout(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect("/");
+    });
 });
 
 app.post('/cadastro-cliente', async (req, res) => {
     const { nome, telefone, email } = req.body;
     try {
-      await db.none('INSERT INTO cliente (nome, tel, email) VALUES ($1, $2, $3)', [nome, telefone, email]);
-      res.status(201).send('Cliente cadastrado com sucesso.');
+        await db.none('INSERT INTO cliente (nome, tel, email) VALUES ($1, $2, $3)', [nome, telefone, email]);
+        res.status(201).send('Cliente cadastrado com sucesso.');
     } catch (err) {
-      console.error('Erro ao cadastrar cliente:', err.message);
-      res.status(500).send(`Erro ao cadastrar cliente: ${err.message}`);
+        console.error('Erro ao cadastrar cliente:', err.message);
+        res.status(500).send(`Erro ao cadastrar cliente: ${err.message}`);
     }
-  });
+});
 
 // Rota para buscar todos os clientes
 app.get("/clientes", async (req, res) => {
     try {
-      // Consulta no banco de dados para pegar todos os clientes
-      const clientes = await db.any("SELECT cid, nome, tel, email FROM cliente");
-      res.json(clientes); // Retorna a lista de clientes em formato JSON
+        // Consulta no banco de dados para pegar todos os clientes
+        const clientes = await db.any("SELECT cid, nome, tel, email FROM cliente");
+        res.json(clientes); // Retorna a lista de clientes em formato JSON
     } catch (err) {
-      console.error("Erro ao buscar clientes:", err);
-      res.status(500).send("Erro ao buscar clientes.");
+        console.error("Erro ao buscar clientes:", err);
+        res.status(500).send("Erro ao buscar clientes.");
     }
 });
 
@@ -156,14 +156,14 @@ app.get("/clientes", async (req, res) => {
 app.delete('/clientes/:cid', async (req, res) => {
     const { cid } = req.params;
     try {
-      await db.none('DELETE FROM cliente WHERE cid = $1', [cid]);
-      res.status(204).send(); // Sucesso sem corpo de resposta
+        await db.none('DELETE FROM cliente WHERE cid = $1', [cid]);
+        res.status(204).send(); // Sucesso sem corpo de resposta
     } catch (error) {
-      console.error('Erro ao excluir cliente:', error);
-      res.status(500).send('Erro ao excluir cliente.');
+        console.error('Erro ao excluir cliente:', error);
+        res.status(500).send('Erro ao excluir cliente.');
     }
-  });
-  
+});
+
 
 // Rota para atualizar um cliente pelo ID
 app.put('/clientes/:cid', async (req, res) => {
@@ -181,7 +181,7 @@ app.put('/clientes/:cid', async (req, res) => {
             `UPDATE cliente 
             SET nome = $1, tel = $2, email = $3
             WHERE cid = $4`,
-            [nome, tel, email, cid] 
+            [nome, tel, email, cid]
         );
 
         res.status(200).send('Cliente atualizado com sucesso.');
@@ -194,35 +194,35 @@ app.put('/clientes/:cid', async (req, res) => {
 
 app.get("/ferramentas", async (req, res) => {
     try {
-      // Consulta no banco de dados para pegar todas as ferramentas
-      const ferramentas = await db.any("SELECT fid, nome, valu, obtido FROM ferramenta");
-      res.json(ferramentas); // Retorna a lista de ferramentas em formato JSON
+        // Consulta no banco de dados para pegar todas as ferramentas
+        const ferramentas = await db.any("SELECT fid, nome, valu, obtido FROM ferramenta");
+        res.json(ferramentas); // Retorna a lista de ferramentas em formato JSON
     } catch (err) {
-      console.error("Erro ao buscar ferramentas:", err);
-      res.status(500).send("Erro ao buscar ferramentas.");
+        console.error("Erro ao buscar ferramentas:", err);
+        res.status(500).send("Erro ao buscar ferramentas.");
     }
 });
 
 app.post('/cadastro-ferramenta', async (req, res) => {
-    const { nome, valu} = req.body;
+    const { nome, valu } = req.body;
     const obtido = false;
     try {
-      await db.none('INSERT INTO ferramenta (nome, valu, obtido) VALUES ($1, $2, $3)', [nome, valu, obtido]);
-      res.status(201).send('Ferramenta cadastrada com sucesso.');
+        await db.none('INSERT INTO ferramenta (nome, valu, obtido) VALUES ($1, $2, $3)', [nome, valu, obtido]);
+        res.status(201).send('Ferramenta cadastrada com sucesso.');
     } catch (err) {
-      console.error('Erro ao cadastrar ferramenta:', err.message);
-      res.status(500).send(`Erro ao cadastrar ferramenta: ${err.message}`);
+        console.error('Erro ao cadastrar ferramenta:', err.message);
+        res.status(500).send(`Erro ao cadastrar ferramenta: ${err.message}`);
     }
 });
 
 app.patch('/ferramentas/:fid', async (req, res) => {
-    const { fid } = req.params; 
+    const { fid } = req.params;
     const { obtido } = req.body;
-    try { 
+    try {
         await db.none('UPDATE ferramenta SET obtido = $1 WHERE fid = $2', [obtido, fid]);
         res.status(200).send('Status da ferramenta atualizado com sucesso.');
     } catch (error) {
-        res.status(500).send('Erro ao atualizar status da ferramenta.'); 
+        res.status(500).send('Erro ao atualizar status da ferramenta.');
     }
 });
 
@@ -231,14 +231,14 @@ app.patch('/ferramentas/:fid', async (req, res) => {
 app.delete('/ferramentas/:fid', async (req, res) => {
     const { fid } = req.params;
     try {
-      await db.none('DELETE FROM ferramenta WHERE fid = $1', [fid]);
-      res.status(204).send(); // Sucesso sem corpo de resposta
+        await db.none('DELETE FROM ferramenta WHERE fid = $1', [fid]);
+        res.status(204).send(); // Sucesso sem corpo de resposta
     } catch (error) {
-      console.error('Erro ao excluir ferramenta:', error);
-      res.status(500).send('Erro ao excluir ferramenta.');
+        console.error('Erro ao excluir ferramenta:', error);
+        res.status(500).send('Erro ao excluir ferramenta.');
     }
-  });
-  
+});
+
 
 // Rota para atualizar uma ferramenta pelo ID
 app.put('/ferramentas/:fid', async (req, res) => {
@@ -256,7 +256,7 @@ app.put('/ferramentas/:fid', async (req, res) => {
             `UPDATE ferramenta 
             SET nome = $1, valu = $2 
             WHERE fid = $3`,
-            [nome, valu, fid] 
+            [nome, valu, fid]
         );
 
         res.status(200).send('Ferramenta atualizada com sucesso.');
@@ -268,23 +268,23 @@ app.put('/ferramentas/:fid', async (req, res) => {
 
 app.get("/materiais", async (req, res) => {
     try {
-      // Consulta no banco de dados para pegar todas as materiais
-      const materiais = await db.any("SELECT mid, nome, valu FROM material");
-      res.json(materiais); // Retorna a lista de materiais em formato JSON
+        // Consulta no banco de dados para pegar todas as materiais
+        const materiais = await db.any("SELECT mid, nome, valu FROM material");
+        res.json(materiais); // Retorna a lista de materiais em formato JSON
     } catch (err) {
-      console.error("Erro ao buscar materiais:", err);
-      res.status(500).send("Erro ao buscar materiais.");
+        console.error("Erro ao buscar materiais:", err);
+        res.status(500).send("Erro ao buscar materiais.");
     }
 });
 
 app.post('/cadastro-material', async (req, res) => {
-    const { nome, valu} = req.body;
+    const { nome, valu } = req.body;
     try {
-      await db.none('INSERT INTO material (nome, valu) VALUES ($1, $2)', [nome, valu]);
-      res.status(201).send('Material cadastrada com sucesso.');
+        await db.none('INSERT INTO material (nome, valu) VALUES ($1, $2)', [nome, valu]);
+        res.status(201).send('Material cadastrada com sucesso.');
     } catch (err) {
-      console.error('Erro ao cadastrar material:', err.message);
-      res.status(500).send(`Erro ao cadastrar material: ${err.message}`);
+        console.error('Erro ao cadastrar material:', err.message);
+        res.status(500).send(`Erro ao cadastrar material: ${err.message}`);
     }
 });
 
@@ -292,14 +292,14 @@ app.post('/cadastro-material', async (req, res) => {
 app.delete('/materiais/:mid', async (req, res) => {
     const { mid } = req.params;
     try {
-      await db.none('DELETE FROM material WHERE mid = $1', [mid]);
-      res.status(204).send(); // Sucesso sem corpo de resposta
+        await db.none('DELETE FROM material WHERE mid = $1', [mid]);
+        res.status(204).send(); // Sucesso sem corpo de resposta
     } catch (error) {
-      console.error('Erro ao excluir material:', error);
-      res.status(500).send('Erro ao excluir material.');
+        console.error('Erro ao excluir material:', error);
+        res.status(500).send('Erro ao excluir material.');
     }
-  });
-  
+});
+
 
 // Rota para atualizar uma material pelo ID
 app.put('/materiais/:mid', async (req, res) => {
@@ -317,7 +317,7 @@ app.put('/materiais/:mid', async (req, res) => {
             `UPDATE material 
             SET nome = $1, valu = $2 
             WHERE mid = $3`,
-            [nome, valu, mid] 
+            [nome, valu, mid]
         );
 
         res.status(200).send('Material atualizada com sucesso.');
@@ -330,6 +330,7 @@ app.put('/materiais/:mid', async (req, res) => {
 let resultadoTotalMaoDeObra = null;
 let resultadoTotalTransporte = null;
 let resultadoTotalMateriais = null;
+let resultadoTotalCustosAdicionais = null;
 
 // Rota GET para retornar os dados da mão de obra
 app.get("/obter-total-mao-de-obra", (req, res) => {
@@ -358,41 +359,39 @@ app.get("/obter-total-custo-materiais", (req, res) => {
     }
 });
 
-// Rota GET para calcular o total do serviço (soma dos custos de mão de obra, transporte e materiais)
+// Rota GET para calcular o total do serviço (soma dos custos de mão de obra e materiais)
 app.get("/obter-total-servico", (req, res) => {
-    if (resultadoTotalMaoDeObra && resultadoTotalTransporte && resultadoTotalMateriais) {
-        // Somando os custos totais de mão de obra, transporte e materiais
-        const totalServico = resultadoTotalMaoDeObra.maoObraTotal + 
-                             resultadoTotalTransporte.totalTransporte + 
-                             resultadoTotalMateriais.totalCost;
+    if (resultadoTotalMaoDeObra && resultadoTotalMateriais && resultadoTotalCustosAdicionais) {
+        const totalServico = resultadoTotalMaoDeObra.maoObraTotal +
+            resultadoTotalMateriais.totalCost +
+            resultadoTotalCustosAdicionais.totalCost;
 
-        // Respondendo com o cálculo final
         res.send({
             maoDeObra: resultadoTotalMaoDeObra.maoObraTotal,
-            transporte: resultadoTotalTransporte.totalTransporte,
             materiais: resultadoTotalMateriais.totalCost,
+            custosAdicionais: resultadoTotalCustosAdicionais.totalCost,
             totalServico // Total final somado
         });
     } else {
-        res.status(404).send({ error: "Faltam dados para calcular o total do serviço. Certifique-se de que todas as etapas (mão de obra, transporte e materiais) foram calculadas." });
+        res.status(404).send({ error: "Faltam dados para calcular o total do serviço. Certifique-se de que todas as etapas (mão de obra, transporte, materiais e custos adicionais) foram calculadas." });
     }
 });
 
 // Função auxiliar para calcular a diferença de horas entre dois horários (horaInicio e horaFim)
 function calcularHorasTurno(turno) {
     if (!turno || !turno.inicio || !turno.fim) {
-      throw new Error("Dados do turno estão incompletos.");
+        throw new Error("Dados do turno estão incompletos.");
     }
-  
+
     const [horaInicio, minutoInicio] = turno.inicio.split(":").map(Number);
     const [horaFim, minutoFim] = turno.fim.split(":").map(Number);
-  
+
     const inicio = new Date(0, 0, 0, horaInicio, minutoInicio);
     const fim = new Date(0, 0, 0, horaFim, minutoFim);
-  
+
     // Calculando a diferença em horas
     return (fim - inicio) / (1000 * 60 * 60); // Resultado em horas
-  }
+}
 // Função para contar os dias trabalhados considerando repetição e dias não trabalhados
 function contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados) {
     let totalDias = 0;
@@ -410,30 +409,30 @@ function contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados) {
 // Rota POST para calcular o custo total da mão de obra e armazenar os resultados
 app.post("/calcular-total-mao-de-obra", (req, res) => {
     const { startDate, endDate, repetition, shifts, laborCostPerHour, diasNaoTrabalhados } = req.body;
-  
+
     if (!startDate || !endDate || !repetition || !shifts || !laborCostPerHour) {
-      return res.status(400).send({ error: "Dados incompletos para calcular o total da mão de obra." });
+        return res.status(400).send({ error: "Dados incompletos para calcular o total da mão de obra." });
     }
-  
+
     try {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const totalHorasDiarias = shifts.reduce((total, turno) => total + calcularHorasTurno(turno), 0);
-      const totalDiasTrabalhados = contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados);
-      const totalHorasTrabalhadas = totalHorasDiarias * totalDiasTrabalhados;
-      const maoObraTotal = totalHorasTrabalhadas * laborCostPerHour;
-  
-      resultadoTotalMaoDeObra = {
-        totalDiasTrabalhados,
-        totalHorasTrabalhadas,
-        maoObraTotal
-      };
-  
-      res.send(resultadoTotalMaoDeObra);
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const totalHorasDiarias = shifts.reduce((total, turno) => total + calcularHorasTurno(turno), 0);
+        const totalDiasTrabalhados = contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados);
+        const totalHorasTrabalhadas = totalHorasDiarias * totalDiasTrabalhados;
+        const maoObraTotal = totalHorasTrabalhadas * laborCostPerHour;
+
+        resultadoTotalMaoDeObra = {
+            totalDiasTrabalhados,
+            totalHorasTrabalhadas,
+            maoObraTotal
+        };
+
+        res.send(resultadoTotalMaoDeObra);
     } catch (error) {
-      res.status(400).send({ error: error.message });
+        res.status(400).send({ error: error.message });
     }
-  });
+});
 
 // Rota POST para calcular o custo total dos materiais e armazenar os resultados
 app.post("/calcular-custo-total-materiais", (req, res) => {
@@ -476,37 +475,38 @@ app.get("/obter-total-servico", (req, res) => {
 // Rota POST para calcular o custo total dos materiais e armazenar os resultados
 app.post("/calcular-custo-total-materiais", (req, res) => {
     try {
-      const materiais = req.body.materiais;
-  
-      if (!Array.isArray(materiais)) {
-        return res.status(400).send({ error: "A lista de materiais é inválida." });
-      }
-  
-      let totalCost = 0;
-  
-      materiais.forEach((material) => {
-        const quantidade = parseInt(material.quantidade, 10);
-        const valorUnitario = parseFloat(material.valu);
-  
-        if (isNaN(quantidade) || quantidade <= 0) {
-          throw new Error(`Quantidade inválida para o material ${material.nome}`);
+        const materiais = req.body.materiais;
+
+        if (!Array.isArray(materiais)) {
+            return res.status(400).send({ error: "A lista de materiais é inválida." });
         }
-  
-        if (isNaN(valorUnitario) || valorUnitario <= 0) {
-          throw new Error(`Valor unitário inválido para o material ${material.nome}`);
-        }
-  
-        totalCost += quantidade * valorUnitario;
-      });
-  
-      resultadoTotalMateriais = { totalCost };
-      res.send(resultadoTotalMateriais);
+
+        let totalCost = 0;
+
+        materiais.forEach((material) => {
+            const quantidade = parseInt(material.quantidade, 10);
+            const valorUnitario = parseFloat(material.valu);
+
+            if (isNaN(quantidade) || quantidade <= 0) {
+                throw new Error(`Quantidade inválida para o material ${material.nome}`);
+            }
+
+            if (isNaN(valorUnitario) || valorUnitario <= 0) {
+                throw new Error(`Valor unitário inválido para o material ${material.nome}`);
+            }
+
+            totalCost += quantidade * valorUnitario;
+        });
+
+        resultadoTotalMateriais = { totalCost };
+        console.log("Custo total dos materiais calculado:", resultadoTotalMateriais);
+        res.send(resultadoTotalMateriais);
     } catch (error) {
-      console.error("Erro ao calcular custo total dos materiais:", error.message);
-      res.status(400).send({ error: error.message });
+        console.error("Erro ao calcular custo total dos materiais:", error.message);
+        res.status(400).send({ error: error.message });
     }
-  });
-  
+});
+
 
 // Rota POST para calcular o custo total dos custos adicionais e armazenar os resultados
 app.post("/calcular-custo-total-custos-adicionais", (req, res) => {
@@ -516,6 +516,8 @@ app.post("/calcular-custo-total-custos-adicionais", (req, res) => {
     custosAdicionais.forEach(custo => {
         totalCost += custo.valor;
     });
+    console.log("Custo total dos custos adicionais calculado:", totalCost);
+    resultadoTotalCustosAdicionais = { totalCost };
 
-    res.send({ totalCost });
+    res.send(resultadoTotalCustosAdicionais);
 });
