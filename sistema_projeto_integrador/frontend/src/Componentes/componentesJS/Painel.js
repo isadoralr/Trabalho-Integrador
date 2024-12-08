@@ -215,7 +215,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={6}>
           <Box>
             <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold' }}>
-              Distribuição de Status dos Serviços
+              Status dos Serviços
             </Typography>
             <Box sx={{ width: '100%', height: '300px' }}>
               <Pie data={pieData} />
