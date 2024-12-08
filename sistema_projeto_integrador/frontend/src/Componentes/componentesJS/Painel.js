@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
-import { Bar } from 'react-chartjs-2';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Card, CardContent, Grid } from '@mui/material';
+import { Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,8 +9,10 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement,
 } from 'chart.js';
 import axios from 'axios';
+import '../componentesCSS/Painel.css'; // Importando o CSS modernizado
 
 // Registro dos componentes do Chart.js
 ChartJS.register(
@@ -19,14 +21,9 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement
 );
-
-const months = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 
-  'Maio', 'Junho', 'Julho', 'Agosto', 
-  'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-];
 
 const Dashboard = () => {
   const [servicos, setServicos] = useState([]);
@@ -77,21 +74,36 @@ const Dashboard = () => {
     ],
   };
 
+  const pieData = {
+    labels: ['Pendentes', 'Não Aceitos', 'Finalizados', 'Em Andamento'],
+    datasets: [
+      {
+        data: [
+          pendentes.reduce((a, b) => a + b, 0),
+          rejeitados.reduce((a, b) => a + b, 0),
+          finalizados.reduce((a, b) => a + b, 0),
+          andamento.reduce((a, b) => a + b, 0),
+        ],
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+      },
+    ],
+  };
+
   const options = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'top', labels: { font: { size: 20 } } },
+      legend: { position: 'top', labels: { font: { size: 14 } } },
       title: {
         display: true,
         text: 'Servicos e Orçamentos',
         font: {
-          size: 24
+          size: 18
         }
       },
     },
     scales: {
-      x: { ticks: { font: { size: 20 } } }
+      x: { ticks: { font: { size: 14 } } }
     },
   };
 
@@ -134,16 +146,90 @@ const Dashboard = () => {
 
   return (
     <Box className="dashboard-container" sx={{ padding: '2%' }}>
-      <Typography variant="h3" component="h1" sx={{ textAlign: 'center', marginBottom: '2%' }}>
+      <Typography variant="h3" component="h1" className="dashboard-title">
         Painel de Controle
       </Typography>
 
+      <Grid container spacing={3} sx={{ marginBottom: '4%' }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card className="card">
+            <CardContent>
+              <Typography variant="h6" component="h2" className="card-title">
+                Total de Serviços
+              </Typography>
+              <Typography variant="h4" component="p" className="card-value">
+                {servicos.length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card className="card">
+            <CardContent>
+              <Typography variant="h6" component="h2" className="card-title">
+                Total de Orçamentos
+              </Typography>
+              <Typography variant="h4" component="p" className="card-value">
+                {orcamentos.length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card className="card">
+            <CardContent>
+              <Typography variant="h6" component="h2" className="card-title">
+                Serviços Finalizados
+              </Typography>
+              <Typography variant="h4" component="p" className="card-value">
+                {finalizados.reduce((a, b) => a + b, 0)}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card className="card">
+            <CardContent>
+              <Typography variant="h6" component="h2" className="card-title">
+                Orçamentos Pendentes
+              </Typography>
+              <Typography variant="h4" component="p" className="card-value">
+                {pendentes.reduce((a, b) => a + b, 0)}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={3} sx={{ marginBottom: '4%' }}>
+        <Grid item xs={12} md={6}>
+          <Box>
+            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold' }}>
+              Gráfico de Serviços
+            </Typography>
+            <Box sx={{ width: '100%', height: '300px' }}>
+              <Bar data={chartData} options={options} />
+            </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Box>
+            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold' }}>
+              Distribuição de Status dos Serviços
+            </Typography>
+            <Box sx={{ width: '100%', height: '300px' }}>
+              <Pie data={pieData} />
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
+
       <Box className="dashboard-section" sx={{ marginBottom: '4%' }}>
-        <Typography variant="h4" component="h2" sx={{ marginBottom: '1%' }}>
+        <Typography variant="h4" component="h2" className="section-title">
           Serviços
         </Typography>
         <TableContainer component={Paper}>
-          <Table>
+          <Table className="dashboard-table">
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
@@ -175,11 +261,11 @@ const Dashboard = () => {
       </Box>
 
       <Box className="dashboard-section" sx={{ marginBottom: '4%' }}>
-        <Typography variant="h4" component="h2" sx={{ marginBottom: '1%' }}>
+        <Typography variant="h4" component="h2" className="section-title">
           Orçamentos
         </Typography>
         <TableContainer component={Paper}>
-          <Table>
+          <Table className="dashboard-table">
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
@@ -208,15 +294,6 @@ const Dashboard = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      </Box>
-
-      <Box>
-        <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold' }}>
-          Gráfico de Serviços
-        </Typography>
-        <Box sx={{ width: '100%', maxWidth: '800px', height: '400px', margin: '0 auto' }}>
-          <Bar data={chartData} options={options} />
-        </Box>
       </Box>
     </Box>
   );
