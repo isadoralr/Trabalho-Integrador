@@ -11,6 +11,27 @@ import Login from "./LoginLogout/Login";
 import Logout from "./LoginLogout/Logout";
 import DashboardLayoutBasic from "./DashBoard/TelaInicial";
 import axios from "axios";
+import { jwtDecode } from 'jwt-decode';
+
+// Função para proteger rotas de administrador
+const AdminRoute = ({ children }) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        return <Navigate to="/" />;
+    }
+
+    try {
+        const decoded = jwtDecode(token);
+        if (decoded.admin) {
+            return children;
+        } else {
+            return <Typography variant="h6" color="error">Acesso negado. Apenas administradores podem acessar esta página.</Typography>;
+        }
+    } catch (error) {
+        console.error("Erro ao decodificar token:", error);
+        return <Navigate to="/" />;
+    }
+};
 
 // Configuração global do Axios
 axios.defaults.baseURL = "http://localhost:3001/";
@@ -18,8 +39,8 @@ axios.defaults.headers.common["Content-Type"] = "application/json;charset=utf-8"
 
 // Função para proteger rotas
 const PrivateRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem("token") !== null;
-  return isAuthenticated ? children : <Navigate to="/" />;
+    const isAuthenticated = localStorage.getItem("token") !== null;
+    return isAuthenticated ? children : <Navigate to="/" />;
 };
 
 function App() {
@@ -49,19 +70,25 @@ function App() {
                 <Route
                     path="/TelaInicial"
                     element={
-                      <PrivateRoute>
-                        <DashboardLayoutBasic handleLogout={handleLogout} />
-                      </PrivateRoute>
+                        <PrivateRoute>
+                            <DashboardLayoutBasic handleLogout={handleLogout} />
+                        </PrivateRoute>
                     }
                 >
                     <Route path="Painel" element={<Painel />} />
                     <Route path="Agenda" element={<Agenda />} />
-                    <Route path="Clientes" element={<Clientes/>} />
+                    <Route path="Clientes" element={<Clientes />} />
                     <Route path="HistoricoServico" element={<HistoricoServico />} />
-                    <Route path="CadastroOrcamento" element={<CadastroOrcamento />} />
+                    <Route path="CadastroOrcamento" element={
+                        <PrivateRoute>
+                            <AdminRoute>
+                                <CadastroOrcamento />
+                            </AdminRoute>
+                        </PrivateRoute>
+                    } />
                     <Route path="MateriaisFerramentas" element={<MateriaisFerramentas />} />
                     <Route path="Relatorios" element={<Relatorios />} />
-                    <Route path="Sair" element={<Logout/>} />
+                    <Route path="Sair" element={<Logout />} />
                 </Route>
                 <Route path="/Logout" element={<Logout />} />
                 {/* Redireciona qualquer rota não definida */}

@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import { Autocomplete, TextField, Box, Button, FormGroup, FormControlLabel, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 const CurrencyInput = () => {
   const [value, setValue] = useState(''); // Valor da mão de obra / h
@@ -34,6 +35,22 @@ const CurrencyInput = () => {
   const [totalCustosAdicionais, setTotalCustosAdicionais] = useState(0);
   const [totalServico, setTotalServico] = useState(0);
   const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  let isAdmin = false;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+    } catch (error) {
+      console.error("Erro ao decodificar token:", error);
+    }
+  }
+  
+  if (!isAdmin) {
+    return <Typography variant="h6" color="error">Acesso negado. Apenas administradores podem cadastrar orçamentos.</Typography>;
+  }
 
   const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
@@ -84,6 +101,10 @@ const CurrencyInput = () => {
     e.preventDefault();
     if (validateFields()) {
       try {
+        const token = localStorage.getItem("token");
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
         const response = await axios.post('/cadastro-orcamento', {
           nomeorcamento,
           descricaoOrcamento,
@@ -96,7 +117,7 @@ const CurrencyInput = () => {
           materiaisTabela,
           custosAdicionais,
           selectedDays: selectedDays.map(day => daysOfWeek.indexOf(day))
-        });
+        }, config);
         console.log('Orçamento cadastrado com sucesso:', response.data);
         alert('Orçamento cadastrado com sucesso!');
         setSuccessMessage('Orçamento cadastrado com sucesso!');
@@ -321,7 +342,6 @@ const CurrencyInput = () => {
       return null;
     }
   };
-
 
   return (
     <Box>

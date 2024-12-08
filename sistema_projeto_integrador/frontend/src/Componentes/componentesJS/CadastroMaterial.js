@@ -2,6 +2,7 @@ import { TextField, Box, Button, Alert, Typography } from "@mui/material";
 import axios from "axios";
 import React, { useState } from "react";
 import Grid from '@mui/material/Grid2'; // Usando Grid2
+import { jwtDecode } from 'jwt-decode';
 
 const CadastroMaterial = ({ onClose, setMateriais }) => {
   const [formData, setFormData] = useState({
@@ -11,13 +12,25 @@ const CadastroMaterial = ({ onClose, setMateriais }) => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  
+
+  const token = localStorage.getItem("token");
+  let isAdmin = false;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token); 
+      isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+    } catch (error) {
+      console.error("Erro ao decodificar token:", error);
+    }
+  }
+
   const formatCurrency = (value) => {
-    const numericValue = value.replace(/\D/g,'');
+    const numericValue = value.replace(/\D/g, '');
     const formattedValue = (Number(numericValue) / 100).toFixed(2).replace('.', ',');
     return formattedValue;
   };
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "valor") {
@@ -39,7 +52,11 @@ const CadastroMaterial = ({ onClose, setMateriais }) => {
     e.preventDefault();
     if (validateFields()) {
       try {
-        const response = await axios.post("/cadastro-material", formData);
+        const token = localStorage.getItem("token");
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+        const response = await axios.post("/cadastro-material", formData, config);
         setSuccessMessage("Material cadastrado com sucesso!");
         setMateriais((prev) => [...prev, response.data]);
         setFormData({ nome: "", valu: "" });
@@ -51,6 +68,10 @@ const CadastroMaterial = ({ onClose, setMateriais }) => {
       }
     }
   };
+
+  if (!isAdmin) {
+    return <Typography variant="h6" color="error">Acesso negado. Apenas administradores podem cadastrar materiais.</Typography>;
+  }
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>

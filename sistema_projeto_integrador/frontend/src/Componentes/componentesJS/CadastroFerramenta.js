@@ -2,6 +2,7 @@ import { TextField, Box, Button, Alert, Typography } from "@mui/material";
 import axios from "axios";
 import React, { useState } from "react";
 import Grid from '@mui/material/Grid2'; // Usando Grid2
+import { jwtDecode } from 'jwt-decode';
 
 const CadastroFerramenta = ({ onClose, setFerramentas }) => {
   const [formData, setFormData] = useState({
@@ -11,13 +12,25 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  
+
+  const token = localStorage.getItem("token");
+  let isAdmin = false;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+    } catch (error) {
+      console.error("Erro ao decodificar token:", error);
+    }
+  }
+
   const formatCurrency = (value) => {
-    const numericValue = value.replace(/\D/g,'');
+    const numericValue = value.replace(/\D/g, '');
     const formattedValue = (Number(numericValue) / 100).toFixed(2).replace('.', ',');
     return formattedValue;
   };
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "valor") {
@@ -39,7 +52,11 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
     e.preventDefault();
     if (validateFields()) {
       try {
-        const response = await axios.post("/cadastro-ferramenta", formData);
+        const token = localStorage.getItem("token");
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+        const response = await axios.post("/cadastro-ferramenta", formData, config);
         setSuccessMessage("Ferramenta cadastrada com sucesso!");
         setFerramentas((prev) => [...prev, response.data]);
         setFormData({ nome: "", valu: "" });
@@ -51,6 +68,10 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
       }
     }
   };
+
+  if (!isAdmin) {
+    return <Typography variant="h6" color="error">Acesso negado. Apenas administradores podem cadastrar ferramentas.</Typography>;
+  }
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
@@ -90,28 +111,22 @@ const CadastroFerramenta = ({ onClose, setFerramentas }) => {
       </Grid>
 
       <Grid container spacing={2} sx={{ mt: 2 }}>
-        {/* <Grid item xs={12}> */}
-          <Button 
-            size="medium"
-            type="submit" 
-            variant="contained" 
-            color="primary" 
-            // fullWidth
-          >
-            Cadastrar
-          </Button>
-        {/* </Grid> */}
-        {/* <Grid  item xs={12}> */}
-          <Button 
-            size="medium"
-            onClick={onClose} 
-            variant="outlined" 
-            color="secondary" 
-            // fullWidth
-          >
-            Cancelar
-          </Button>
-        {/* </Grid> */}
+        <Button 
+          size="medium"
+          type="submit" 
+          variant="contained" 
+          color="primary" 
+        >
+          Cadastrar
+        </Button>
+        <Button 
+          size="medium"
+          onClick={onClose} 
+          variant="outlined" 
+          color="secondary" 
+        >
+          Cancelar
+        </Button>
       </Grid>
 
       {successMessage && (

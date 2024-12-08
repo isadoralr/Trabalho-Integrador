@@ -5,6 +5,7 @@ import { Edit, Delete, ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import axios from 'axios';
 import CadastroFerramenta from './CadastroFerramenta'; 
 import AlteracaoFerramenta from './AlteracaoFerramenta'; 
+import { jwtDecode } from 'jwt-decode';
 
 const Ferramentas = () => {
   const [showCadastro, setShowCadastro] = useState(false);
@@ -14,6 +15,18 @@ const Ferramentas = () => {
   const [selectedFerramenta, setSelectedFerramenta] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
+
+  const token = localStorage.getItem("token");
+  let isAdmin = false;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+    } catch (error) {
+      console.error("Erro ao decodificar token:", error);
+    }
+  }
 
   useEffect(() => {
     const fetchFerramentas = async () => {
@@ -71,7 +84,11 @@ const Ferramentas = () => {
     }
   
     try {
-      await axios.delete(`/ferramentas/${selectedFerramenta.fid}`);
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+      await axios.delete(`/ferramentas/${selectedFerramenta.fid}`, config); // Corrigido
       setFerramentas((prev) =>
         prev.filter((ferramenta) => ferramenta.fid !== selectedFerramenta.fid)
       );
@@ -82,8 +99,6 @@ const Ferramentas = () => {
     }
   };
   
-  
-
   return (
     <Box sx={{ mt: 2, textAlign: 'left', padding:'5%'}}>
         <Typography variant="h5" component="h2" gutterBottom> 
@@ -100,8 +115,12 @@ const Ferramentas = () => {
                 Preço Unitário {orderBy === 'valu' ? (order === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />) : null}
               </TableCell>
               <TableCell style={{ width: '10%' }}>Obtido</TableCell>
+              {isAdmin && (
               <TableCell style={{ width: '10%' }}>Editar</TableCell>
+              )}
+              {isAdmin && (
               <TableCell style={{ width: '10%' }}>Excluir</TableCell>
+            )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -126,26 +145,32 @@ const Ferramentas = () => {
                     onChange={() => handleCheckboxChange(ferramenta.fid, ferramenta.obtido)}
                   />
                 </TableCell>
+                {isAdmin && (
                 <TableCell>
                   <IconButton onClick={() => handleEdit(ferramenta)}>
                     <Edit />
                   </IconButton>
                 </TableCell>
+              )}
+              {isAdmin && (
                 <TableCell>
                   <IconButton onClick={() => handleDelete(ferramenta)}>
                     <Delete />
                   </IconButton>
                 </TableCell>
+              )}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+      {isAdmin && (
       <Box paddingTop="20px">
       <Button variant="contained" color="primary" onClick={handleToggleCadastro}>
         {showCadastro ? 'Fechar Cadastro de Ferramenta' : 'Cadastrar nova ferramenta'}
       </Button>
       </Box>
+      )}
 
       {/* Diálogo para cadastro de nova ferramenta */}
       <Dialog open={showCadastro} onClose={() => setShowCadastro(false)}>

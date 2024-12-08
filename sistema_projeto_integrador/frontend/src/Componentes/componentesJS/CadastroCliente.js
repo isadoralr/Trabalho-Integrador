@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { TextField, Box, Button, Alert, Typography } from "@mui/material";
 import axios from "axios";
 import Grid from '@mui/material/Grid2'; // Usando Grid2
+import { jwtDecode } from 'jwt-decode';
+
 
 import "../componentesCSS/CadastroCliente.css"; // Arquivo CSS
 
-const CadastroCliente = () => {
+const CadastroCliente = ({ setClientes, onClose }) => {
   const [formData, setFormData] = useState({
     nome: "",
     telefone: "",
@@ -14,6 +16,18 @@ const CadastroCliente = () => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const token = localStorage.getItem("token");
+  let isAdmin = false;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+    } catch (error) {
+      console.error("Erro ao decodificar token:", error);
+    }
+  }
 
   // Função para formatar o telefone
   const formatTelefone = (value) => {
@@ -28,7 +42,7 @@ const CadastroCliente = () => {
 
   // Validação do email
   const isValidEmail = (email) => {
-    if (email){
+    if (email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailRegex.test(email);
     }
@@ -60,10 +74,16 @@ const CadastroCliente = () => {
     e.preventDefault();
     if (validateFields()) {
       try {
-        await axios.post("/cadastro-cliente", formData);
+        const token = localStorage.getItem("token");
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+        const response = await axios.post("/cadastro-cliente", formData, config);
         setSuccessMessage("Cliente cadastrado com sucesso!");
         setFormData({ nome: "", telefone: "", email: "" });
         setErrors({});
+        setClientes((prev) => [...prev, response.data]);
+        onClose();
       } catch (err) {
         console.error(err);
         setErrorMessage("Erro ao cadastrar cliente. Tente novamente.");
@@ -71,83 +91,87 @@ const CadastroCliente = () => {
     }
   };
 
+  if (!isAdmin) {
+    return <Typography variant="h6" color="error">Acesso negado. Apenas administradores podem cadastrar clientes.</Typography>;
+  }
+
   return (
     <Box>
       <Box
-       sx={{
-         '& .MuiTextField-root': { m: 1, width: '100%' },
-         margin: '0 auto',
-       }}
-       component="form"
-       onSubmit={handleSubmit}
-       >
-      <Typography 
-      sx={{
-        textAlign:'center',
-        marginTop:'10px',
-        marginBottom: '10px',
-      }}
-      variant="h5" 
-      component="h1"
-      > Cadastro de Cliente
-      </Typography>  
+        sx={{
+          '& .MuiTextField-root': { m: 1, width: '100%' },
+          margin: '0 auto',
+        }}
+        component="form"
+        onSubmit={handleSubmit}
+      >
+        <Typography
+          sx={{
+            textAlign: 'center',
+            marginTop: '10px',
+            marginBottom: '10px',
+          }}
+          variant="h5"
+          component="h1"
+        > Cadastro de Cliente
+        </Typography>
 
-      <Grid container spacing={2}>
-        <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
-          <TextField
-          name="nome"
-          label="Nome do Cliente"
-          value={formData.nome}
-          onChange={handleChange}
-          error={!!errors.nome}
-          helperText={errors.nome}
-          required
-          fullWidth
-          >
-          </TextField>
+        <Grid container spacing={2}>
+          <Grid xs={12} sm={6} sx={{ width: '40%', marginLeft: '5%' }}>
+            <TextField
+              name="nome"
+              label="Nome do Cliente"
+              value={formData.nome}
+              onChange={handleChange}
+              error={!!errors.nome}
+              helperText={errors.nome}
+              required
+              fullWidth
+            >
+            </TextField>
+          </Grid>
+          <Grid xs={12} sm={6} sx={{ width: '40%', marginLeft: '5%' }}>
+            <TextField
+              name="telefone"
+              label="Telefone"
+              type="tel"
+              value={formData.telefone}
+              onChange={handleChange}
+              error={!!errors.telefone}
+              helperText={errors.telefone}
+              required
+              fullWidth
+            />
+          </Grid>
         </Grid>
-        <Grid xs={12} sm={6} sx={{width:'40%',marginLeft:'5%'}}>
-        <TextField
-            name="telefone"
-            label="Telefone"
-            type="tel"
-            value={formData.telefone}
+
+        <Grid container spacing={1} sx={{ mt: 2 }} marginLeft="5%" marginRight="5%">
+          <TextField
+            name="email"
+            label="Email (Opcional)"
+            value={formData.email}
             onChange={handleChange}
-            error={!!errors.telefone}
-            helperText={errors.telefone}
-            required
+            error={!!errors.email}
+            helperText={errors.email}
             fullWidth
           />
         </Grid>
-      </Grid>
-      
-      <Grid container spacing={1} sx={{ mt: 2 }} marginLeft="5%" marginRight="5%">
-      <TextField
-        name="email"
-        label="Email (Opcional)"
-        value={formData.email}
-        onChange={handleChange}
-        error={!!errors.email}
-        helperText={errors.email}
-        fullWidth
-      />        
-      </Grid>
-      <Grid container spacing={1} sx={{ mt: 2 }} 
-      marginLeft="5%" marginRight="5%" marginBottom="20px">
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          Cadastrar
-        </Button>
-      </Grid>
-      {successMessage && (
-        <Alert severity="success" sx={{ mt: 2 }}>
-          {successMessage}
-        </Alert>
-      )}
-      {errorMessage && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
+        <Grid container spacing={1} sx={{ mt: 2 }}
+          marginLeft="5%" marginRight="5%" marginBottom="20px">
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Cadastrar
+          </Button>
+        </Grid>
+        {successMessage && (
+          <Alert severity="success" sx={{ mt: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+        {errorMessage && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
       </Box>
     </Box>
   );

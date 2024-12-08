@@ -33,7 +33,6 @@ app.use(
     })
 );
 app.use(passport.initialize());
-app.use(passport.session());
 
 // Estratégia Local
 passport.use(
@@ -45,7 +44,7 @@ passport.use(
         async (email, password, done) => {
             try {
                 const user = await db.oneOrNone(
-                    "SELECT email, senha FROM usuario WHERE email = $1;",
+                    "SELECT email, senha, admin FROM usuario WHERE email = $1;",
                     [email]
                 );
 
@@ -58,13 +57,46 @@ passport.use(
                     return done(null, false, { message: "Senha incorreta." });
                 }
 
-                return done(null, user);
+                // Inclui o atributo admin no retorno
+                return done(null, { email: user.email, admin: user.admin });
             } catch (error) {
                 return done(error);
             }
         }
     )
 );
+
+// Gerar o token JWT no login
+app.post("/login", (req, res, next) => {
+    passport.authenticate("local", { session: false }, (err, user, info) => {
+        if (err) {
+            return res.status(500).json({ message: "Erro interno no servidor." });
+        }
+        if (!user) {
+            return res.status(401).json({ message: info?.message || "Credenciais inválidas." });
+        }
+
+        const token = jwt.sign(
+            { email: user.email, admin: user.admin },
+            "your-secret-key",
+            { expiresIn: "365d" }
+        );
+
+        res.json({ message: "Login realizado com sucesso.", token });
+    })(req, res, next);
+});
+
+
+app.post("/logout", function (req, res, next) {
+    req.logout(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect("/");
+    });
+});
+
+
 
 // Estratégia JWT
 passport.use(
@@ -92,10 +124,23 @@ passport.use(
     )
 );
 
-// Serialização e desserialização
-passport.serializeUser((user, done) => {
-    done(null, { email: user.email });
-});
+const verifyAuth = (req, res, next) => {
+    passport.authenticate("jwt", { session: false }, (err, user, info) => {
+        if (err || !user) {
+            return res.status(401).json({ message: "Não autenticado." });
+        }
+        req.user = user;
+        next();
+    })(req, res, next);
+};
+
+const verifyAdmin = (req, res, next) => {
+    if (!req.user.admin) {
+        return res.status(403).json({ message: "Permissão negada. Apenas administradores podem realizar esta ação." });
+    }
+    next();
+};
+
 
 passport.deserializeUser((user, done) => {
     done(null, user);
@@ -106,30 +151,8 @@ app.listen(3001, () => {
     console.log("Servidor rodando na porta 3001");
 });
 
-app.post(
-    "/login",
-    passport.authenticate("local", { session: false }),
-    (req, res) => {
 
-        // Cria o token JWT
-        const token = jwt.sign({ username: req.body.username }, "your-secret-key", {
-            expiresIn: "1h",
-        });
-
-        res.json({ message: "Login successful", token: token });
-    },
-);
-
-app.post("/logout", function (req, res, next) {
-    req.logout(function (err) {
-        if (err) {
-            return next(err);
-        }
-        res.redirect("/");
-    });
-});
-
-app.post('/cadastro-cliente', async (req, res) => {
+app.post('/cadastro-cliente', verifyAuth, verifyAdmin, async (req, res) => {
     const { nome, telefone, email } = req.body;
     try {
         await db.none('INSERT INTO cliente (nome, tel, email) VALUES ($1, $2, $3)', [nome, telefone, email]);
@@ -153,7 +176,7 @@ app.get("/clientes", async (req, res) => {
 });
 
 // Deletar cliente
-app.delete('/clientes/:cid', async (req, res) => {
+app.delete('/clientes/:cid', verifyAuth, verifyAdmin, async (req, res) => {
     const { cid } = req.params;
     try {
         await db.none('DELETE FROM cliente WHERE cid = $1', [cid]);
@@ -166,7 +189,7 @@ app.delete('/clientes/:cid', async (req, res) => {
 
 
 // Rota para atualizar um cliente pelo ID
-app.put('/clientes/:cid', async (req, res) => {
+app.put('/clientes/:cid', verifyAuth, verifyAdmin, async (req, res) => {
     const { cid } = req.params; // Pega o ID do cliente a ser alterada
     const { nome, tel, email } = req.body; // Dados enviados pelo frontend
 
@@ -203,7 +226,7 @@ app.get("/ferramentas", async (req, res) => {
     }
 });
 
-app.post('/cadastro-ferramenta', async (req, res) => {
+app.post('/cadastro-ferramenta', verifyAuth, verifyAdmin, async (req, res) => {
     const { nome, valu } = req.body;
     const obtido = false;
     try {
@@ -228,7 +251,7 @@ app.patch('/ferramentas/:fid', async (req, res) => {
 
 // Deletar ferramenta
 
-app.delete('/ferramentas/:fid', async (req, res) => {
+app.delete('/ferramentas/:fid', verifyAuth, verifyAdmin, async (req, res) => {
     const { fid } = req.params;
     try {
         await db.none('DELETE FROM ferramenta WHERE fid = $1', [fid]);
@@ -241,7 +264,7 @@ app.delete('/ferramentas/:fid', async (req, res) => {
 
 
 // Rota para atualizar uma ferramenta pelo ID
-app.put('/ferramentas/:fid', async (req, res) => {
+app.put('/ferramentas/:fid', verifyAuth, verifyAdmin, async (req, res) => {
     const { fid } = req.params; // Pega o ID da ferramenta a ser alterada
     const { nome, valu } = req.body; // Dados enviados pelo frontend
 
@@ -277,7 +300,7 @@ app.get("/materiais", async (req, res) => {
     }
 });
 
-app.post('/cadastro-material', async (req, res) => {
+app.post('/cadastro-material', verifyAuth, verifyAdmin, async (req, res) => {
     const { nome, valu } = req.body;
     try {
         await db.none('INSERT INTO material (nome, valu) VALUES ($1, $2)', [nome, valu]);
@@ -289,7 +312,7 @@ app.post('/cadastro-material', async (req, res) => {
 });
 
 // Deletar material
-app.delete('/materiais/:mid', async (req, res) => {
+app.delete('/materiais/:mid', verifyAuth, verifyAdmin, async (req, res) => {
     const { mid } = req.params;
     try {
         await db.none('DELETE FROM material WHERE mid = $1', [mid]);
@@ -301,8 +324,8 @@ app.delete('/materiais/:mid', async (req, res) => {
 });
 
 
-// Rota para atualizar uma material pelo ID
-app.put('/materiais/:mid', async (req, res) => {
+// Rota para atualizar um material pelo ID
+app.put('/materiais/:mid', verifyAuth, verifyAdmin, async (req, res) => {
     const { mid } = req.params; // Pega o ID do material a ser alterado
     const { nome, valu } = req.body; // Dados enviados pelo frontend
 
@@ -405,7 +428,6 @@ function contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados) {
     return totalDias;
 }
 
-// Rota POST para calcular o custo total da mão de obra e armazenar os resultados
 // Rota POST para calcular o custo total da mão de obra e armazenar os resultados
 app.post("/calcular-total-mao-de-obra", (req, res) => {
     const { startDate, endDate, repetition, shifts, laborCostPerHour, diasNaoTrabalhados } = req.body;
@@ -524,7 +546,7 @@ app.post("/calcular-custo-total-custos-adicionais", (req, res) => {
     res.send(resultadoTotalCustosAdicionais);
 });
 
-app.post("/cadastro-orcamento", async (req, res) => {
+app.post("/cadastro-orcamento", verifyAuth, verifyAdmin, async (req, res) => {
     const {
         nomeorcamento,
         descricaoOrcamento,
@@ -693,5 +715,35 @@ app.get("/agenda", async (req, res) => {
     } catch (error) {
         console.error("Erro ao buscar a agenda:", error);
         res.status(500).send("Erro ao buscar a agenda.");
+    }
+});
+
+app.get("/Relatorioservicos", async (req, res) => {
+    try {
+        // Consulta no banco de dados para contar serviços por mês e status
+        const Relatorioservicos = `
+            SELECT 
+                TO_CHAR(dti, 'YYYY-MM') AS mes,
+                stts,
+                COUNT(*) AS quantidade
+            FROM servico
+            GROUP BY mes, stts
+            ORDER BY mes, stts;
+        `;
+
+        const resultados = await db.any(Relatorioservicos);
+
+        // Estruturar o resultado em um formato organizado
+        const servicosPorMes = resultados.reduce((acc, row) => {
+            const { mes, stts, quantidade } = row;
+            if (!acc[mes]) acc[mes] = { and: 0, fin: 0, rej: 0, pen: 0 };
+            acc[mes][stts] = parseInt(quantidade, 10);
+            return acc;
+        }, {});
+
+        res.json(servicosPorMes); // Retorna o resultado formatado como JSON
+    } catch (err) {
+        console.error("Erro ao buscar serviços por mês e status:", err);
+        res.status(500).send("Erro ao buscar serviços.");
     }
 });

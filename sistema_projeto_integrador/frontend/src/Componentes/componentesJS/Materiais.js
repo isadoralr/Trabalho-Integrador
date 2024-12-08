@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Paper, IconButton, Dialog, 
+import { Button, Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, 
 DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { Edit, Delete, ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import axios from 'axios';
 import CadastroMaterial from './CadastroMaterial'; 
 import AlteracaoMaterial from './AlteracaoMaterial'; 
+import { jwtDecode } from 'jwt-decode';
 
 const Materiais = () => {
   const [showCadastro, setShowCadastro] = useState(false);
@@ -15,13 +16,25 @@ const Materiais = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
+  const token = localStorage.getItem("token");
+  let isAdmin = false;
+  
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+    } catch (error) {
+      console.error("Erro ao decodificar token:", error);
+    }
+  }
+
   useEffect(() => {
     const fetchMateriais = async () => {
       try {
         const response = await axios.get('/materiais');
         setMateriais(response.data);
       } catch (error) {
-        console.error('Error fetching tools:', error);
+        console.error('Error fetching materials:', error);
       }
     };
     fetchMateriais();
@@ -57,12 +70,16 @@ const Materiais = () => {
 
   const confirmDelete = async () => {
     if (!selectedMaterial) {
-      console.error('Nenhum material selecionada para exclusão.');
+      console.error('Nenhum material selecionado para exclusão.');
       return;
     }
   
     try {
-      await axios.delete(`/materiais/${selectedMaterial.mid}`);
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+      await axios.delete(`/materiais/${selectedMaterial.mid}`, config); // Corrigido
       setMateriais((prev) =>
         prev.filter((material) => material.mid !== selectedMaterial.mid)
       );
@@ -72,8 +89,6 @@ const Materiais = () => {
       console.error('Erro ao excluir material:', error);
     }
   };
-  
-  
 
   return (
     <Box sx={{ mt: 2, textAlign: 'left', padding:'5%'}}>
@@ -90,8 +105,8 @@ const Materiais = () => {
               <TableCell onClick={() => handleSort('valu')} style={{ width: '25%' }}>
                 Preço Unitário {orderBy === 'valu' ? (order === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />) : null}
               </TableCell>
-              <TableCell style={{ width: '10%' }}>Editar</TableCell>
-              <TableCell style={{ width: '10%' }}>Excluir</TableCell>
+              {isAdmin && <TableCell style={{ width: '10%' }}>Editar</TableCell>}
+              {isAdmin && <TableCell style={{ width: '10%' }}>Excluir</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -110,26 +125,32 @@ const Materiais = () => {
               }}>
                 <TableCell>{material.nome}</TableCell>
                 <TableCell>{material.valu}</TableCell>
+                {isAdmin && (
                 <TableCell>
                   <IconButton onClick={() => handleEdit(material)}>
                     <Edit />
                   </IconButton>
                 </TableCell>
+                )}
+                {isAdmin && (
                 <TableCell>
                   <IconButton onClick={() => handleDelete(material)}>
                     <Delete />
                   </IconButton>
                 </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+      {isAdmin && (
       <Box paddingTop="20px">
       <Button variant="contained" color="primary" onClick={handleToggleCadastro}>
         {showCadastro ? 'Fechar Cadastro de Material' : 'Cadastrar novo material'}
       </Button>
       </Box>
+      )}
 
       {/* Diálogo para cadastro de novo material */}
       <Dialog open={showCadastro} onClose={() => setShowCadastro(false)}>
@@ -159,7 +180,7 @@ const Materiais = () => {
                 <DialogContentText>
                 {selectedMaterial
                     ? `Tem certeza de que deseja excluir o material "${selectedMaterial.nome}"?`
-                    : 'Nenhum material selecionada.'}
+                    : 'Nenhum material selecionado.'}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>

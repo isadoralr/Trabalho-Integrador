@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Alert } from '@mui/material';
 import Grid from '@mui/material/Grid2'; // Usando Grid2
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 const AlteracaoCliente = ({ cliente, setClientes, onClose }) => {
     const [formData, setFormData] = useState({
@@ -12,6 +13,18 @@ const AlteracaoCliente = ({ cliente, setClientes, onClose }) => {
     const [errors, setErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+
+    const token = localStorage.getItem("token");
+    let isAdmin = false;
+
+    if (token) {
+        try {
+            const decoded = jwtDecode(token); // Corrigido
+            isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+        } catch (error) {
+            console.error("Erro ao decodificar token:", error);
+        }
+    }
 
     // Função para formatar o telefone
     const formatTelefone = (value) => {
@@ -26,7 +39,7 @@ const AlteracaoCliente = ({ cliente, setClientes, onClose }) => {
 
     // Validação do email
     const isValidEmail = (email) => {
-        if (email){
+        if (email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         }
@@ -34,9 +47,9 @@ const AlteracaoCliente = ({ cliente, setClientes, onClose }) => {
 
     useEffect(() => {
         if (cliente) {
-          setFormData({ nome: cliente.nome, tel: cliente.tel, email: cliente.email });
+            setFormData({ nome: cliente.nome, tel: cliente.tel, email: cliente.email });
         }
-      }, [cliente]);
+    }, [cliente]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -64,11 +77,15 @@ const AlteracaoCliente = ({ cliente, setClientes, onClose }) => {
         e.preventDefault();
         if (validateFields()) {
             try {
-                await axios.put(`/clientes/${cliente.cid}`, formData);
-                setSuccessMessage("Cliente cadastrada com sucesso!");
+                const token = localStorage.getItem("token");
+                const config = {
+                    headers: { Authorization: `Bearer ${token}` }
+                };
+                await axios.put(`/clientes/${cliente.cid}`, formData, config); // Corrigido
+                setSuccessMessage("Cliente atualizado com sucesso!");
                 setClientes((prev) =>
                     prev.map((c) =>
-                        c.cid === cliente.cid ? { ...c, nome: formData.nome, tel: formData.tel, email: formData.email} : c
+                        c.cid === cliente.cid ? { ...c, nome: formData.nome, tel: formData.tel, email: formData.email } : c
                     )
                 );
                 setErrors({});
@@ -79,6 +96,10 @@ const AlteracaoCliente = ({ cliente, setClientes, onClose }) => {
             }
         }
     };
+
+    if (!isAdmin) {
+        return <Typography variant="h6" color="error">Acesso negado. Apenas administradores podem alterar clientes.</Typography>;
+    }
 
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
