@@ -194,9 +194,10 @@ const CurrencyInput = () => {
         >
           Cadastro de Orçamento
         </Typography>
-
-        <Grid container spacing={2}>
-          <Grid xs={12} sm={6} sx={{ width: '40%', marginLeft: '5%' }}>
+        
+        {/* nome do orcamento , descricao do orc, clientes,endereco do servico,mao de obra / h*/}
+        <Grid container spacing={2} marginLeft="5%">
+          <Grid xs={12} sm={6} sx={{ width: '40%' }}>
             <TextField
               required
               label="Nome do orçamento"
@@ -207,15 +208,7 @@ const CurrencyInput = () => {
               helperText={errors.nomeorcamento}
             />
           </Grid>
-          <Grid xs={12} sm={6} sx={{ width: '40%', marginRight: '5%' }}>
-            <TextField
-              label="Descrição do orçamento"
-              placeholder="Digite uma descrição"
-              value={descricaoOrcamento}
-              onChange={(e) => setDescricaoOrcamento(e.target.value)}
-            />
-          </Grid>
-          <Grid xs={12} sm={6} sx={{ width: '40%', marginLeft: '5%' }}>
+          <Grid xs={12} sm={6} sx={{ width: '40%'}}>
             <Autocomplete
               options={clientes}
               getOptionLabel={(option) => option.nome}
@@ -231,7 +224,7 @@ const CurrencyInput = () => {
               onChange={(_, value) => setSelectedCliente(value)}
             />
           </Grid>
-          <Grid xs={12} sm={6} sx={{ width: '40%', marginRight: '5%' }}>
+          <Grid xs={12} sm={6} sx={{ width: '50%'}}>
             <TextField
               required
               label="Endereço do serviço"
@@ -240,7 +233,7 @@ const CurrencyInput = () => {
               onChange={(e) => setEnderecoOrcamento(e.target.value)}
             />
           </Grid>
-          <Grid xs={12} sm={6} sx={{ width: '40%', marginLeft: '5%' }}>
+          <Grid xs={12} sm={6} sx={{ width: '30%' }}>
             <TextField
               required
               label="Mão de Obra / h"
@@ -252,10 +245,20 @@ const CurrencyInput = () => {
               helperText={errors.value}
             />
           </Grid>
+        <Grid xs={12} sm={12} sx={{ width: '82%' }}>
+        <TextField
+              label="Descrição do orçamento"
+              placeholder="Digite uma descrição"
+              value={descricaoOrcamento}
+              multiline
+              rows={4}
+              onChange={(e) => setDescricaoOrcamento(e.target.value)}
+            />
+          </Grid>
         </Grid>
-
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          <Grid xs={12} sm={6} sx={{ width: '40%', marginLeft: '5%' }}>
+        {/* data de inicio e fim */}
+        <Grid container spacing={2} sx={{ mt: 2 }} marginLeft="5%">
+          <Grid xs={12} sm={6} sx={{ width: '40%' }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 label="Data de Início"
@@ -273,7 +276,7 @@ const CurrencyInput = () => {
               />
             </LocalizationProvider>
           </Grid>
-          <Grid xs={12} sm={6} sx={{ width: '40%', marginRight: '5%' }}>
+          <Grid xs={12} sm={6} sx={{ width: '40%'}}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 label="Data de Conclusão"
@@ -292,13 +295,15 @@ const CurrencyInput = () => {
             </LocalizationProvider>
           </Grid>
         </Grid>
+        {/* titulo */}
         <Grid xs={12} sm={6} sx={{ mt: '5%', ml: '5%' }}>
         <Typography variant="h6" gutterBottom>
         Lista de Materiais
         </Typography>
         </Grid>
-        <Grid container spacing={2}>
-          <Grid sx={{ marginLeft: '5%' }}>
+        {/* materais,quantidade */}
+        <Grid container spacing={2} marginLeft="5%">
+          <Grid xs={12} sm={6} sx={{ width: '40%'}}>
             <Autocomplete
               options={materiais}
               getOptionLabel={(option) => option.nome}
@@ -311,7 +316,7 @@ const CurrencyInput = () => {
               onChange={(_, value) => setSelectedMaterial(value)}
             />
           </Grid>
-          <Grid sx={{ marginRight: '5%' }}>
+          <Grid xs={12} sm={6} sx={{ width: '40%' }}>
             <TextField
               label="Quantidade"
               value={materialQuantidade}
@@ -321,6 +326,7 @@ const CurrencyInput = () => {
             />
           </Grid>
         </Grid>
+        {/* botao */}
         <Grid container spacing={2} sx={{ mt: 2, marginBottom: '10px' }}>
           <Grid xs={12} sm={6} sx={{ marginLeft: '6%' }}>
             <Button
@@ -333,7 +339,7 @@ const CurrencyInput = () => {
             </Button>
           </Grid>
         </Grid>
-
+        {/* tabela para os materiais */}
         <Grid xs={12} sm={6} sx={{ marginRight: '5%', marginLeft: '5%' }}>
           <Table>
             <TableHead>
@@ -366,13 +372,15 @@ const CurrencyInput = () => {
             </TableBody>
           </Table>
         </Grid>
+        {/* titulo */}
         <Grid xs={12} sm={6} sx={{ mt: '3%', ml: '5%' }}>
         <Typography variant="h6" gutterBottom>
         Gastos Adicionais
         </Typography>
         </Grid>
-        <Grid container spacing={2} sx={{ marginBottom: '2px' }}>
-          <Grid xs={12} sm={6} sx={{ marginLeft: '5%' }}>
+        {/*nome do gasto,gasto diario  */}
+        <Grid container spacing={2} sx={{ marginLeft:"5%"}}>
+          <Grid xs={12} sm={6} sx={{ width:'40%' }}>
             <TextField
               label="Nome do Gasto"
               value={nomeGasto}
@@ -380,7 +388,7 @@ const CurrencyInput = () => {
               placeholder="Digite o nome do gasto"
             />
           </Grid>
-          <Grid xs={12} sm={6} sx={{ marginRight: '5%' }}>
+          <Grid xs={12} sm={6} sx={{ width:'40%' }}>
             <TextField
               label="Gasto Diário"
               value={gastoDiario}
@@ -389,7 +397,8 @@ const CurrencyInput = () => {
             />
           </Grid>
         </Grid>
-        <Grid xs={12} sm={6} sx={{ marginLeft: '6%' }}>
+        {/* botao */}
+        <Grid xs={12} sm={6} sx={{ marginLeft: '5%',marginTop:'10px' }}>
           <Button
             variant="contained"
             color="primary"
@@ -399,7 +408,7 @@ const CurrencyInput = () => {
             Adicionar Gasto
           </Button>
         </Grid>
-
+        {/* tabela */}
         <Grid xs={12} sm={6} sx={{ marginRight: '5%', marginLeft: '5%' }}>
           <Table>
             <TableHead>
@@ -428,7 +437,7 @@ const CurrencyInput = () => {
             </TableBody>
           </Table>
         </Grid>
-
+        {/* titulo ,turnos*/}
         <Grid container spacing={5} sx={{ mt:'3%', marginBottom: '10px' }}>
           <Grid xs={12} sm={6} sx={{ marginLeft: '5%' }}>
           <Typography variant="h6" gutterBottom>
@@ -436,7 +445,7 @@ const CurrencyInput = () => {
             </Typography>
             <InputManager onChange={handleDynamicInputChange} />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={6} sx={{marginLeft:'5%'}}>
             <Typography variant="h6" gutterBottom>
               Selecione os dias da semana
             </Typography>
@@ -460,6 +469,7 @@ const CurrencyInput = () => {
             <Button variant="contained" type="submit">Cadastrar Orçamento</Button>
           </Grid>
         </Grid>
+
       </Box>
     </Box>
   );
