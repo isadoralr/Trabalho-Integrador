@@ -12,13 +12,12 @@ const CurrencyInput = () => {
   const [value, setValue] = useState(''); // Valor da mão de obra / h
   const [nomeorcamento, setNomeOrcamento] = useState(''); // Nome do orçamento
   const [descricaoOrcamento, setDescricaoOrcamento] = useState(''); // Descrição do orçamento
-  const [enderecoOrcamento, setEnderecoOrcamento] = useState(''); // Descrição do orçamento
+  const [enderecoOrcamento, setEnderecoOrcamento] = useState(''); // Endereço do orçamento
   const [startDate, setStartDate] = useState(null); // Data de início
   const [endDate, setEndDate] = useState(null); // Data de finalização
   const [formData, setFormData] = useState([]); // Turnos
   const [selectedCliente, setSelectedCliente] = useState(null); // Cliente selecionado
   const [clientes, setClientes] = useState([]); // Lista de clientes
-
   const [selectedMaterial, setSelectedMaterial] = useState(null); // Material selecionado
   const [materialQuantidade, setMaterialQuantidade] = useState(''); // Quantidade do material
   const [materiais, setMateriais] = useState([]); // Lista de materiais
@@ -28,6 +27,12 @@ const CurrencyInput = () => {
   const [errors, setErrors] = useState({});
   const [custosAdicionais, setCustosAdicionais] = useState([]); // Tabela de custos adicionais
   const [selectedDays, setSelectedDays] = useState([]); // Dias selecionados
+  const [totalMaoDeObra, setTotalMaoDeObra] = useState(0);
+  const [totalHorasTrabalhadas, setTotalHorasTrabalhadas] = useState(0);
+  const [totalMateriais, setTotalMateriais] = useState(0);
+  const [totalCustosAdicionais, setTotalCustosAdicionais] = useState(0);
+  const [totalServico, setTotalServico] = useState(0);
+
 
   const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
@@ -95,19 +100,23 @@ const CurrencyInput = () => {
         alert('A quantidade deve ser um número positivo.');
         return;
       }
-
+  
       // Verifica se o material já existe na lista de materiaisTabela pelo ID
       const materialExistente = materiaisTabela.find(material => material.mid === selectedMaterial.mid);
-
+  
       if (!materialExistente) {
+        // Calcula o custo total do material
+        const totalMaterial = parseFloat(selectedMaterial.valu.replace(',', '.')) * quantidade;
+  
         const materialComDetalhes = {
           ...selectedMaterial,
           valu: selectedMaterial.valu, // Assegura que o valor unitário está correto
           quantidade: materialQuantidade,
+          total: totalMaterial, // Adiciona o total calculado
         };
-
+  
         setMateriaisTabela(prevMateriais => [...prevMateriais, materialComDetalhes]);
-
+  
         // Limpa os campos após adicionar
         setSelectedMaterial(null);
         setMaterialQuantidade('');
@@ -118,7 +127,7 @@ const CurrencyInput = () => {
       alert('Selecione um material e uma quantidade!');
     }
   };
-
+  
 
   const handleRemoveMaterial = (mid) => {
     // Filtra os materiais para remover o material com o ID correspondente
@@ -144,6 +153,32 @@ const CurrencyInput = () => {
   const handleRemoveGasto = (index) => {
     setCustosAdicionais(prevCustos => prevCustos.filter((_, i) => i !== index));
   };
+  
+  useEffect(() => {
+    const calcularTotais = async () => {
+      const maoDeObra = await calcularTotalMaoDeObra();
+      const materiais = await calcularCustoTotalMateriais();
+      const custosAdicionais = await calcularCustoTotalCustosAdicionais();
+      const servico = await obterTotalServico();
+  
+      if (maoDeObra) {
+        setTotalMaoDeObra(maoDeObra.maoObraTotal);
+        setTotalHorasTrabalhadas(maoDeObra.totalHorasTrabalhadas);
+      }
+      if (materiais !== null) {
+        setTotalMateriais(materiais);
+      }
+      if (custosAdicionais) {
+        setTotalCustosAdicionais(custosAdicionais.totalCost);
+      }
+      if (servico) {
+        setTotalServico(servico.totalServico);
+      }
+    };
+  
+    calcularTotais();
+  }, [startDate, endDate, selectedDays, formData, value, materiaisTabela, custosAdicionais]);
+
 
 
   useEffect(() => {
@@ -171,6 +206,61 @@ const CurrencyInput = () => {
 
     fetchMateriais();
   }, []);
+
+  // Função para calcular o total da mão de obra
+  const calcularTotalMaoDeObra = async () => {
+    try {
+      const response = await axios.post('/calcular-total-mao-de-obra', {
+        startDate: startDate ? startDate.toISOString() : null,
+        endDate: endDate ? endDate.toISOString() : null,
+        repetition: selectedDays.map(day => daysOfWeek.indexOf(day)),
+        shifts: formData.map(turno => ({
+          inicio: turno.entrada,
+          fim: turno.saida
+        })),
+        laborCostPerHour: parseFloat(value.replace(',', '.')),
+        diasNaoTrabalhados: [] // Adicione os dias não trabalhados se necessário
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao calcular o total da mão de obra:', error);
+      return null;
+    }
+  };
+
+  const calcularCustoTotalMateriais = async () => {
+    try {
+      const response = await axios.post('/calcular-custo-total-materiais', {
+        materiais: materiaisTabela
+      });
+      return response.data.totalCost;
+    } catch (error) {
+      console.error('Erro ao calcular o custo total dos materiais:', error);
+      return null;
+    }
+  };
+
+  const calcularCustoTotalCustosAdicionais = async () => {
+    try {
+      const response = await axios.post('/calcular-custo-total-custos-adicionais', {
+        custosAdicionais
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao calcular o custo total dos custos adicionais:', error);
+      return null;
+    }
+  };
+
+  const obterTotalServico = async () => {
+    try {
+      const response = await axios.get('/obter-total-servico');
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao obter o total do serviço:', error);
+      return null;
+    }
+  };
 
   return (
     <Box>
@@ -293,9 +383,9 @@ const CurrencyInput = () => {
           </Grid>
         </Grid>
         <Grid xs={12} sm={6} sx={{ mt: '5%', ml: '5%' }}>
-        <Typography variant="h6" gutterBottom>
-        Lista de Materiais
-        </Typography>
+          <Typography variant="h6" gutterBottom>
+            Lista de Materiais
+          </Typography>
         </Grid>
         <Grid container spacing={2}>
           <Grid sx={{ marginLeft: '5%' }}>
@@ -333,7 +423,6 @@ const CurrencyInput = () => {
             </Button>
           </Grid>
         </Grid>
-
         <Grid xs={12} sm={6} sx={{ marginRight: '5%', marginLeft: '5%' }}>
           <Table>
             <TableHead>
@@ -367,9 +456,9 @@ const CurrencyInput = () => {
           </Table>
         </Grid>
         <Grid xs={12} sm={6} sx={{ mt: '3%', ml: '5%' }}>
-        <Typography variant="h6" gutterBottom>
-        Gastos Adicionais
-        </Typography>
+          <Typography variant="h6" gutterBottom>
+            Gastos Adicionais
+          </Typography>
         </Grid>
         <Grid container spacing={2} sx={{ marginBottom: '2px' }}>
           <Grid xs={12} sm={6} sx={{ marginLeft: '5%' }}>
@@ -429,9 +518,9 @@ const CurrencyInput = () => {
           </Table>
         </Grid>
 
-        <Grid container spacing={5} sx={{ mt:'3%', marginBottom: '10px' }}>
+        <Grid container spacing={5} sx={{ mt: '3%', marginBottom: '10px' }}>
           <Grid xs={12} sm={6} sx={{ marginLeft: '5%' }}>
-          <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               Selecione a quantidade de turnos e os horários de cada um
             </Typography>
             <InputManager onChange={handleDynamicInputChange} />
@@ -455,6 +544,28 @@ const CurrencyInput = () => {
                 />
               ))}
             </FormGroup>
+          </Grid>
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Resumo do Orçamento
+              </Typography>
+              <Typography variant="body1">
+                Total de Horas Trabalhadas: {totalHorasTrabalhadas ? totalHorasTrabalhadas : 0}
+              </Typography>
+              <Typography variant="body1">
+                Total de Mão de Obra: R$ {totalMaoDeObra ? totalMaoDeObra.toFixed(2).replace('.', ',') : '0,00'}
+              </Typography>
+              <Typography variant="body1">
+                Total de Materiais: R$ {totalMateriais ? totalMateriais.toFixed(2).replace('.', ',') : '0,00'}
+              </Typography>
+              <Typography variant="body1">
+                Total de Custos Adicionais: R$ {totalCustosAdicionais ? totalCustosAdicionais.toFixed(2).replace('.', ',') : '0,00'}
+              </Typography>
+              <Typography variant="h6" gutterBottom>
+                Total do Serviço: R$ {totalServico ? totalServico.toFixed(2).replace('.', ',') : '0,00'}
+              </Typography>
+            </Grid>
           </Grid>
           <Grid xs={12} sm={6} sx={{ margin: '5%' }}>
             <Button variant="contained" type="submit">Cadastrar Orçamento</Button>

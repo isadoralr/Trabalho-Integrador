@@ -380,16 +380,19 @@ app.get("/obter-total-servico", (req, res) => {
 
 // Função auxiliar para calcular a diferença de horas entre dois horários (horaInicio e horaFim)
 function calcularHorasTurno(turno) {
+    if (!turno || !turno.inicio || !turno.fim) {
+      throw new Error("Dados do turno estão incompletos.");
+    }
+  
     const [horaInicio, minutoInicio] = turno.inicio.split(":").map(Number);
     const [horaFim, minutoFim] = turno.fim.split(":").map(Number);
-
+  
     const inicio = new Date(0, 0, 0, horaInicio, minutoInicio);
     const fim = new Date(0, 0, 0, horaFim, minutoFim);
-
+  
     // Calculando a diferença em horas
     return (fim - inicio) / (1000 * 60 * 60); // Resultado em horas
-}
-
+  }
 // Função para contar os dias trabalhados considerando repetição e dias não trabalhados
 function contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados) {
     let totalDias = 0;
@@ -404,23 +407,49 @@ function contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados) {
 }
 
 // Rota POST para calcular o custo total da mão de obra e armazenar os resultados
+// Rota POST para calcular o custo total da mão de obra e armazenar os resultados
 app.post("/calcular-total-mao-de-obra", (req, res) => {
     const { startDate, endDate, repetition, shifts, laborCostPerHour, diasNaoTrabalhados } = req.body;
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const totalHorasDiarias = shifts.reduce((total, turno) => total + calcularHorasTurno(turno), 0);
-    const totalDiasTrabalhados = contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados);
-    const totalHorasTrabalhadas = totalHorasDiarias * totalDiasTrabalhados;
-    const maoObraTotal = totalHorasTrabalhadas * laborCostPerHour;
-
-    resultadoTotalMaoDeObra = {
+  
+    if (!startDate || !endDate || !repetition || !shifts || !laborCostPerHour) {
+      return res.status(400).send({ error: "Dados incompletos para calcular o total da mão de obra." });
+    }
+  
+    try {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const totalHorasDiarias = shifts.reduce((total, turno) => total + calcularHorasTurno(turno), 0);
+      const totalDiasTrabalhados = contarDiasComRepeticao(start, end, repetition, diasNaoTrabalhados);
+      const totalHorasTrabalhadas = totalHorasDiarias * totalDiasTrabalhados;
+      const maoObraTotal = totalHorasTrabalhadas * laborCostPerHour;
+  
+      resultadoTotalMaoDeObra = {
         totalDiasTrabalhados,
         totalHorasTrabalhadas,
         maoObraTotal
+      };
+  
+      res.send(resultadoTotalMaoDeObra);
+    } catch (error) {
+      res.status(400).send({ error: error.message });
+    }
+  });
+
+// Rota POST para calcular o custo total dos materiais e armazenar os resultados
+app.post("/calcular-custo-total-materiais", (req, res) => {
+    const materiais = req.body.materiais;
+    let totalCost = 0;
+
+    materiais.forEach(material => {
+        const itemCost = material.quantidade * material.valu;
+        totalCost += itemCost;
+    });
+
+    resultadoTotalMateriais = {
+        totalCost
     };
 
-    res.send(resultadoTotalMaoDeObra);
+    res.send(resultadoTotalMateriais);
 });
 
 // Rota POST para calcular o custo total de transporte e armazenar os resultados
@@ -440,24 +469,46 @@ app.post("/calcular-custo-total-transporte", (req, res) => {
     res.send(resultadoTotalTransporte);
 });
 
+// Rota GET para calcular o total do serviço (soma dos custos de mão de obra, materiais e custos adicionais)
+app.get("/obter-total-servico", (req, res) => {
+    if (resultadoTotalMaoDeObra && resultadoTotalMateriais) {
+        const totalServico = resultadoTotalMaoDeObra.maoObraTotal + resultadoTotalMateriais.totalCost;
+
+        res.send({
+            maoDeObra: resultadoTotalMaoDeObra.maoObraTotal,
+            materiais: resultadoTotalMateriais.totalCost,
+            totalServico
+        });
+    } else {
+        res.status(404).send({ error: "Faltam dados para calcular o total do serviço." });
+    }
+});
+
 // Rota POST para calcular o custo total dos materiais e armazenar os resultados
 app.post("/calcular-custo-total-materiais", (req, res) => {
     const materiais = req.body.materiais;
     let totalCost = 0;
-    let totalNonObtainedCost = 0;
 
     materiais.forEach(material => {
-        const itemCost = material.qtd * material.unitValue;
+        const itemCost = material.quantidade * parseFloat(material.valu.replace(',', '.'));
         totalCost += itemCost;
-        if (!material.obtido) {
-            totalNonObtainedCost += itemCost;
-        }
     });
 
     resultadoTotalMateriais = {
-        totalCost,
-        totalNonObtainedCost
+        totalCost
     };
 
     res.send(resultadoTotalMateriais);
+});
+
+// Rota POST para calcular o custo total dos custos adicionais e armazenar os resultados
+app.post("/calcular-custo-total-custos-adicionais", (req, res) => {
+    const custosAdicionais = req.body.custosAdicionais;
+    let totalCost = 0;
+
+    custosAdicionais.forEach(custo => {
+        totalCost += custo.valor;
+    });
+
+    res.send({ totalCost });
 });
