@@ -600,3 +600,58 @@ app.post("/cadastro-orcamento", async (req, res) => {
         res.status(500).send(`Erro ao cadastrar orçamento: ${error.message}`);
     }
 });
+
+// Rota para buscar serviços
+app.get("/servicos", async (req, res) => {
+    try {
+        const servicos = await db.any(`
+            SELECT 
+                s.sid, 
+                s.nome AS servico_nome, 
+                c.nome AS cliente_nome, 
+                s.stts, 
+                s.endr, 
+                s.dti, 
+                s.dtc
+            FROM 
+                servico s
+            JOIN 
+                cliente c ON s.cid = c.cid
+            WHERE 
+                s.stts IN ('and', 'fin')
+            ORDER BY 
+                s.stts, s.dtc;
+        `);
+        res.json(servicos);
+    } catch (error) {
+        console.error("Erro ao buscar serviços:", error);
+        res.status(500).send("Erro ao buscar serviços.");
+    }
+});
+
+app.get("/orcamentos", async (req, res) => {
+    try {
+        const orcamentos = await db.any(`
+            SELECT 
+                s.sid, 
+                s.nome AS orcamento_nome, 
+                c.nome AS cliente_nome, 
+                s.stts, 
+                s.endr, 
+                s.dti, 
+                s.dtc
+            FROM 
+                servico s
+            JOIN 
+                cliente c ON s.cid = c.cid
+            WHERE 
+                s.stts IN ('pen', 'rej')
+            ORDER BY 
+                s.stts, s.dtc;
+        `);
+        res.json(orcamentos);
+    } catch (error) {
+        console.error("Erro ao buscar orçamentos:", error);
+        res.status(500).send("Erro ao buscar orçamentos.");
+    }
+});

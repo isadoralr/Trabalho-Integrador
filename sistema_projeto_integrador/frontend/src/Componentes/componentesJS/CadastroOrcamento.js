@@ -7,6 +7,7 @@ import Grid from '@mui/material/Grid2'; // Usando Grid2
 import Typography from '@mui/material/Typography';
 import { Autocomplete, TextField, Box, Button, FormGroup, FormControlLabel, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const CurrencyInput = () => {
   const [value, setValue] = useState(''); // Valor da mão de obra / h
@@ -32,7 +33,7 @@ const CurrencyInput = () => {
   const [totalMateriais, setTotalMateriais] = useState(0);
   const [totalCustosAdicionais, setTotalCustosAdicionais] = useState(0);
   const [totalServico, setTotalServico] = useState(0);
-
+  const navigate = useNavigate();
 
   const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
@@ -77,29 +78,36 @@ const CurrencyInput = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const [successMessage, setSuccessMessage] = useState('');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateFields()) {
-        try {
-            const response = await axios.post('/cadastro-orcamento', {
-                nomeorcamento,
-                descricaoOrcamento,
-                enderecoOrcamento,
-                value,
-                startDate: startDate?.toISOString(),
-                endDate: endDate?.toISOString(),
-                cliente: selectedCliente,
-                formData,
-                materiaisTabela,
-                custosAdicionais,
-                selectedDays: selectedDays.map(day => daysOfWeek.indexOf(day))
-            });
-            console.log('Orçamento cadastrado com sucesso:', response.data);
-        } catch (error) {
-            console.error('Erro ao cadastrar orçamento:', error);
-        }
+      try {
+        const response = await axios.post('/cadastro-orcamento', {
+          nomeorcamento,
+          descricaoOrcamento,
+          enderecoOrcamento,
+          value,
+          startDate: startDate?.toISOString(),
+          endDate: endDate?.toISOString(),
+          cliente: selectedCliente,
+          formData,
+          materiaisTabela,
+          custosAdicionais,
+          selectedDays: selectedDays.map(day => daysOfWeek.indexOf(day))
+        });
+        console.log('Orçamento cadastrado com sucesso:', response.data);
+        alert('Orçamento cadastrado com sucesso!');
+        setSuccessMessage('Orçamento cadastrado com sucesso!');
+        setTimeout(() => {
+          navigate('/TelaInicial/Painel');
+        }, 1000);
+      } catch (error) {
+        console.error('Erro ao cadastrar orçamento:', error);
+      }
     }
-};
+  };
 
   const handleDynamicInputChange = (values) => {
     setFormData(values);
@@ -108,32 +116,39 @@ const CurrencyInput = () => {
 
   const handleAddMaterial = () => {
     if (selectedMaterial && materialQuantidade) {
+      // Check if the material already exists in the table
+      const materialExists = materiaisTabela.some(material => material.mid === selectedMaterial.mid);
+      if (materialExists) {
+        alert('Este material já foi adicionado.');
+        return;
+      }
+  
       // Converte quantidade para número
       const quantidade = parseInt(materialQuantidade, 10);
       if (isNaN(quantidade) || quantidade <= 0) {
         alert('A quantidade deve ser um número positivo.');
         return;
       }
-
+  
       // Remove "R$" e converte valor para número
       const valorUnitario = parseFloat(selectedMaterial.valu.replace('R$', '').replace(',', '.').trim());
       if (isNaN(valorUnitario) || valorUnitario <= 0) {
         alert('O valor do material é inválido.');
         return;
       }
-
+  
       // Calcula o custo total
       const totalMaterial = valorUnitario * quantidade;
-
+  
       const materialComDetalhes = {
         ...selectedMaterial,
         valu: valorUnitario, // Agora está como número
         quantidade, // Agora está como número
         total: totalMaterial, // Total calculado
       };
-
+  
       setMateriaisTabela((prevMateriais) => [...prevMateriais, materialComDetalhes]);
-
+  
       // Limpa os campos
       setSelectedMaterial(null);
       setMaterialQuantidade('');
