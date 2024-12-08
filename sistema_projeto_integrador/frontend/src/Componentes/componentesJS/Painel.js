@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Card, CardContent, Grid } from '@mui/material';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Card, CardContent } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -201,23 +202,23 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3} sx={{ marginBottom: '4%' }}>
+      <Grid container spacing={5} sx={{ marginBottom: '4%', justifyContent: 'center' }}>
         <Grid item xs={12} md={6}>
           <Box>
-            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold' }}>
+            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold', textAlign: 'center' }}>
               Gráfico de Serviços
             </Typography>
-            <Box sx={{ width: '100%', height: '300px' }}>
+            <Box sx={{ width: '100%', height: '300px', display: 'flex', justifyContent: 'center' }}>
               <Bar data={chartData} options={options} />
             </Box>
           </Box>
         </Grid>
         <Grid item xs={12} md={6}>
           <Box>
-            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold' }}>
+            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold', textAlign: 'center' }}>
               Status dos Serviços
             </Typography>
-            <Box sx={{ width: '100%', height: '300px' }}>
+            <Box sx={{ width: '100%', height: '300px', display: 'flex', justifyContent: 'center' }}>
               <Pie data={pieData} />
             </Box>
           </Box>
