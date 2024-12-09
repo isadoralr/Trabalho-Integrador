@@ -12,6 +12,7 @@
     text-align: center;
     font-size: 1.8em;
     margin-bottom: 20px;
+    color:black;
   }
   
   .agenda-filtro {
@@ -19,6 +20,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    color:black;
   }
   
   .agenda-filtro label {
@@ -85,3 +87,7 @@
     color: #555;
   }
   
+.agenda-data{
+  color:black;
+  background-color: white;
+}
