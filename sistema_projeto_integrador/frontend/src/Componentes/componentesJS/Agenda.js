@@ -24,6 +24,7 @@ const Agenda = () => {
       <div className="agenda-filtro">
         <label htmlFor="data">Selecione uma data:</label>
         <input
+          className="agenda-data"
           type="date"
           id="data"
           value={data}
