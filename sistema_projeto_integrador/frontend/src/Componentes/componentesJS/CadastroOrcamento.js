@@ -42,7 +42,7 @@ const CurrencyInput = () => {
   if (token) {
     try {
       const decoded = jwtDecode(token);
-      isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+      isAdmin = decoded.admin; 
     } catch (error) {
       console.error("Erro ao decodificar token:", error);
     }
@@ -137,7 +137,7 @@ const CurrencyInput = () => {
 
   const handleAddMaterial = () => {
     if (selectedMaterial && materialQuantidade) {
-      // Check if the material already exists in the table
+      // Verifica se o material já foi adicionado
       const materialExists = materiaisTabela.some(material => material.mid === selectedMaterial.mid);
       if (materialExists) {
         alert('Este material já foi adicionado.');

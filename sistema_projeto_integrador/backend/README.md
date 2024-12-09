@@ -12,8 +12,7 @@ yarn add dotenv
 
 # Configure o banco de dados:
 Instale o PostgreSQL em sua máquina.
-Crie um banco de dados (ex:planomei) e execute o script:
-psql -U <seu_usuario> -f criacao-de-tabelas.sql
+Crie um banco de dados (ex:planomei) e crie as tabelas do criacao-de-tabelas
 
 # Configure as variáveis de ambiente:
 yarn add dotenv

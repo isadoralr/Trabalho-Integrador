@@ -7,6 +7,8 @@ import CadastroMaterial from './CadastroMaterial';
 import AlteracaoMaterial from './AlteracaoMaterial'; 
 import { jwtDecode } from 'jwt-decode';
 
+
+// NÃO FUNCIONA, TEM QUE ARRUMAR ROTAS E N SEI OQ MAIS
 const Materiais = () => {
   const [showCadastro, setShowCadastro] = useState(false);
   const [materiais, setMateriais] = useState([]);
@@ -22,7 +24,7 @@ const Materiais = () => {
   if (token) {
     try {
       const decoded = jwtDecode(token);
-      isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+      isAdmin = decoded.admin; 
     } catch (error) {
       console.error("Erro ao decodificar token:", error);
     }
@@ -91,7 +93,7 @@ const Materiais = () => {
   };
 
   return (
-    <Box sx={{ mt: 2, textAlign: 'left', padding:'5%'}}>
+    <Box sx={{textAlign: 'left', padding:'5%'}}>
         <Typography variant="h5" component="h2" gutterBottom> 
         Materiais
         </Typography>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Alert } from '@mui/material';
-import Grid from '@mui/material/Grid2'; // Usando Grid2
+import Grid from '@mui/material/Grid2'; 
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
@@ -18,8 +18,8 @@ const AlteracaoFerramenta = ({ ferramenta, setFerramentas, onClose }) => {
 
     if (token) {
         try {
-            const decoded = jwtDecode(token); // Corrigido
-            isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+            const decoded = jwtDecode(token); 
+            isAdmin = decoded.admin; 
         } catch (error) {
             console.error("Erro ao decodificar token:", error);
         }
@@ -62,7 +62,7 @@ const AlteracaoFerramenta = ({ ferramenta, setFerramentas, onClose }) => {
                 const config = {
                     headers: { Authorization: `Bearer ${token}` }
                 };
-                await axios.put(`/ferramentas/${ferramenta.fid}`, formData, config); // Corrigido
+                await axios.put(`/ferramentas/${ferramenta.fid}`, formData, config); 
                 setSuccessMessage("Ferramenta atualizada com sucesso!");
                 setFerramentas((prev) =>
                     prev.map((f) =>

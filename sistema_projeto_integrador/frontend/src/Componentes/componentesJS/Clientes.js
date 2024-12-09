@@ -16,7 +16,7 @@ let isAdmin = false;
 if (token) {
   try {
     const decoded = jwtDecode(token);
-    isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+    isAdmin = decoded.admin; 
   } catch (error) {
     console.error("Erro ao decodificar token:", error);
   }

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { TextField, Box, Button, Alert, Typography } from "@mui/material";
 import axios from "axios";
-import Grid from '@mui/material/Grid2'; // Usando Grid2
+import Grid from '@mui/material/Grid2'; 
 import { jwtDecode } from 'jwt-decode';
 
 
-import "../componentesCSS/CadastroCliente.css"; // Arquivo CSS
+import "../componentesCSS/CadastroCliente.css"; 
 
 const CadastroCliente = ({ setClientes, onClose }) => {
   const [formData, setFormData] = useState({
@@ -23,7 +23,7 @@ const CadastroCliente = ({ setClientes, onClose }) => {
   if (token) {
     try {
       const decoded = jwtDecode(token);
-      isAdmin = decoded.admin; // Supondo que o campo `admin` exista no payload do JWT
+      isAdmin = decoded.admin; 
     } catch (error) {
       console.error("Erro ao decodificar token:", error);
     }

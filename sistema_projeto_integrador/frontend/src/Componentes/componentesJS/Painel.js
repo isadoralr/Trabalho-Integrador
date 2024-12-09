@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Card, CardContent } from '@mui/material';
+import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Card, CardContent, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Bar, Pie } from 'react-chartjs-2';
+import { Edit, Delete } from '@mui/icons-material';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,6 +15,8 @@ import {
 } from 'chart.js';
 import axios from 'axios';
 import '../componentesCSS/Painel.css'; // Importando o CSS modernizado
+import AlteracaoOrcamento from './AlteracaoOrcamento';
+import { jwtDecode } from 'jwt-decode';
 
 // Registro dos componentes do Chart.js
 ChartJS.register(
@@ -30,6 +33,21 @@ const Dashboard = () => {
   const [servicos, setServicos] = useState([]);
   const [orcamentos, setOrcamentos] = useState([]);
   const [relatorioServicos, setRelatorioServico] = useState([]);
+  const [selectedOrcamento, setSelectedOrcamento] = useState(null);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const token = localStorage.getItem("token");
+  let isAdmin = false;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      isAdmin = decoded.admin; 
+    } catch (error) {
+      console.error("Erro ao decodificar token:", error);
+    }
+  }
 
   useEffect(() => {
     const fetchServicos = async () => {
@@ -123,6 +141,38 @@ const Dashboard = () => {
     fetchOrcamentos();
   }, []);
 
+  const handleEdit = (orcamento) => {
+    setSelectedOrcamento(orcamento);
+    setOpenEditDialog(true);
+  };
+
+  const handleDelete = (orcamento) => {
+    setSelectedOrcamento(orcamento);
+    setOpenDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedOrcamento) {
+      console.error('Nenhum orçamento selecionado para exclusão.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+      await axios.delete(`/orcamentos/${selectedOrcamento.sid}`, config);
+      setOrcamentos((prev) =>
+        prev.filter((orcamento) => orcamento.sid !== selectedOrcamento.sid)
+      );
+      setOpenDeleteDialog(false);
+      setSelectedOrcamento(null);
+    } catch (error) {
+      console.error('Erro ao excluir orçamento:', error);
+    }
+  };
+
   // Função para formatar datas no formato dd/mm/yyyy
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -151,7 +201,7 @@ const Dashboard = () => {
         Painel de Controle
       </Typography>
 
-      <Grid container spacing={3} sx={{ marginBottom: '4%' }}>
+      <Grid container spacing={3} sx={{ marginBottom: '4%', mt: '5%'}}>
         <Grid item xs={12} sm={6} md={3}>
           <Card className="card">
             <CardContent>
@@ -240,6 +290,8 @@ const Dashboard = () => {
                 <TableCell>Endereço</TableCell>
                 <TableCell>Data Início</TableCell>
                 <TableCell>Data Conclusão</TableCell>
+                {isAdmin && <TableCell>Editar</TableCell>}
+                {isAdmin && <TableCell>Excluir</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -254,6 +306,20 @@ const Dashboard = () => {
                   <TableCell>{servico.endr}</TableCell>
                   <TableCell>{formatDate(servico.dti)}</TableCell>
                   <TableCell>{formatDate(servico.dtc)}</TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <IconButton onClick={() => handleEdit(servico)}>
+                        <Edit />
+                      </IconButton>
+                    </TableCell>
+                  )}
+                  {isAdmin && (
+                    <TableCell>
+                      <IconButton onClick={() => handleDelete(servico)}>
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -276,6 +342,8 @@ const Dashboard = () => {
                 <TableCell>Endereço</TableCell>
                 <TableCell>Data Início</TableCell>
                 <TableCell>Data Conclusão</TableCell>
+                {isAdmin && <TableCell>Editar</TableCell>}
+                {isAdmin && <TableCell>Excluir</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -290,12 +358,57 @@ const Dashboard = () => {
                   <TableCell>{orcamento.endr}</TableCell>
                   <TableCell>{formatDate(orcamento.dti)}</TableCell>
                   <TableCell>{formatDate(orcamento.dtc)}</TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <IconButton onClick={() => handleEdit(orcamento)}>
+                        <Edit />
+                      </IconButton>
+                    </TableCell>
+                  )}
+                  {isAdmin && (
+                    <TableCell>
+                      <IconButton onClick={() => handleDelete(orcamento)}>
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       </Box>
+
+      {/* Diálogo para edição de orçamento */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+        <DialogContent>
+          <AlteracaoOrcamento
+            orcamento={selectedOrcamento}
+            setOrcamentos={setOrcamentos}
+            onClose={() => setOpenEditDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para confirmação de exclusão */}
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {selectedOrcamento
+              ? `Tem certeza de que deseja excluir o orçamento "${selectedOrcamento.orcamento_nome}"?`
+              : 'Nenhum orçamento selecionado.'}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={confirmDelete} color="secondary">
+            Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
