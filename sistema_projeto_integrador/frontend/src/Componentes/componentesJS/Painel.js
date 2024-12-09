@@ -205,7 +205,7 @@ const Dashboard = () => {
       <Grid container spacing={5} sx={{ marginBottom: '4%', justifyContent: 'center' }}>
         <Grid item xs={12} md={6}>
           <Box>
-            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold', textAlign: 'center' }}>
+            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold', textAlign: 'center',color:'black' }}>
               Gráfico de Serviços
             </Typography>
             <Box sx={{ width: '100%', height: '300px', display: 'flex', justifyContent: 'center' }}>
@@ -215,7 +215,7 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <Box>
-            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold', textAlign: 'center' }}>
+            <Typography variant="h4" component="h2" sx={{ marginBottom: '2%', fontWeight: 'bold', textAlign: 'center',color:'black' }}>
               Status dos Serviços
             </Typography>
             <Box sx={{ width: '100%', height: '300px', display: 'flex', justifyContent: 'center' }}>
@@ -268,7 +268,7 @@ const Dashboard = () => {
         <TableContainer component={Paper}>
           <Table className="dashboard-table">
             <TableHead>
-              <TableRow>
+              <TableRow sx={{color:'black'}}>
                 <TableCell>ID</TableCell>
                 <TableCell>Nome</TableCell>
                 <TableCell>Cliente</TableCell>
