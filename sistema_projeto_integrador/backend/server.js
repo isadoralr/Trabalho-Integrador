@@ -461,44 +461,6 @@ app.post("/calcular-total-mao-de-obra", (req, res) => {
 
 // Rota POST para calcular o custo total dos materiais e armazenar os resultados
 app.post("/calcular-custo-total-materiais", (req, res) => {
-    const materiais = req.body.materiais;
-    let totalCost = 0;
-
-    materiais.forEach(material => {
-        const itemCost = material.quantidade * material.valu;
-        totalCost += itemCost;
-    });
-
-    resultadoTotalMateriais = {
-        totalCost
-    };
-
-    res.send(resultadoTotalMateriais);
-});
-
-// Rota GET para calcular o total do serviço (soma dos custos de mão de obra, materiais e custos adicionais)
-app.get("/obter-total-servico", (req, res) => {
-    console.log("Mão de obra:", resultadoTotalMaoDeObra);
-    console.log("Materiais:", resultadoTotalMateriais);
-
-    if (resultadoTotalMaoDeObra && resultadoTotalMateriais) {
-        const totalServico = resultadoTotalMaoDeObra.maoObraTotal + resultadoTotalMateriais.totalCost;
-        console.log("Total do serviço calculado:", totalServico);
-        res.send({
-            maoDeObra: resultadoTotalMaoDeObra.maoObraTotal,
-            materiais: resultadoTotalMateriais.totalCost,
-            totalServico
-        });
-    } else {
-        console.log("Dados ausentes para calcular o total do serviço.");
-        res.status(404).send({ error: "Faltam dados para calcular o total do serviço." });
-    }
-});
-
-
-
-// Rota POST para calcular o custo total dos materiais e armazenar os resultados
-app.post("/calcular-custo-total-materiais", (req, res) => {
     try {
         const materiais = req.body.materiais;
 

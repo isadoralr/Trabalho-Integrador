@@ -10,6 +10,8 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
+
+// NAO FUNCIONA, NAO FOI TESTADO NEM IMPLEMENTADO ROTAS NEM NADA
 const AlteracaoOrcamento = () => {
   const [value, setValue] = useState(''); // Valor da mão de obra / h
   const [nomeorcamento, setNomeOrcamento] = useState(''); // Nome do orçamento
