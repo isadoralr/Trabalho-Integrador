@@ -1,6 +1,5 @@
 # Sistema de Gestão para Serviços Elétricos/MEI
 ## Alunos envolvidos: Isadora Laís Ruschel, Nycollas Wildney e Wilsony Louis
-Matrículas: 2311100031, 2311100005, 2311100003.
 ## Organização de diretórios:
 ### Documentos sobre o projeto e entregas solicitadas: Pasta "documentos";
 ### Sistema em si: sistema_projeto_integrador.
